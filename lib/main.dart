@@ -213,7 +213,6 @@ class OrderTrackingPageState extends State<OrderTrackingPage> {
         ),
       );
     });
-    // _nameTheRoute();
   }
 
   void _nameTheRoute() {
