@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_mao/models/destination_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FireStoreMethods {
+  String collectionNameForMaps = "Maps";
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -45,18 +48,74 @@ class FireStoreMethods {
     return res;
   }
 
-  Future uploadRoute(String name, String driverName, String phone, List konum,
-      bool morning, bool evening) async {
+//************************************************************ */
+  // Same function will be used for update
+
+  Future uploadRoute(String name, String driverName, String phone,
+      String NumberPlate, List konum, bool morning, bool evening) async {
+    Map<String, dynamic> json = {};
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection(collectionNameForMaps)
+        .doc(name)
+        .get();
+    if (morning && !evening) {
+      json = {
+        "sabah": {
+          "name": name,
+          "driverName": driverName,
+          "phone": phone,
+          "numberPlate": NumberPlate,
+          "locations": konum,
+        }
+      };
+    } else if (evening && !morning) {
+      json = {
+        "akşam": {
+          "name": name,
+          "driverName": driverName,
+          "phone": phone,
+          "numberPlate": NumberPlate,
+          "locations": konum,
+        }
+      };
+    } else {
+      json = {
+        "sabah": {
+          "name": name,
+          "driverName": driverName,
+          "phone": phone,
+          "numberPlate": NumberPlate,
+          "locations": konum,
+        },
+        "akşam": {
+          "name": name,
+          "driverName": driverName,
+          "phone": phone,
+          "numberPlate": NumberPlate,
+          "locations": konum,
+        }
+      };
+    }
+    ;
+    if (snapshot.exists) {
+      await FirebaseFirestore.instance
+          .collection(collectionNameForMaps)
+          .doc(name)
+          .update(json);
+    } else {
+      final docRoute = FirebaseFirestore.instance
+          .collection(collectionNameForMaps)
+          .doc(name);
+
+      await docRoute.set(json);
+    }
     // referance to document
-    final docRoute = FirebaseFirestore.instance.collection('Maps').doc(name);
-    final json = {
-      "name": name,
-      "driverName": driverName,
-      "phone": phone,
-      "locations": konum,
-      "morning": morning,
-      "evening": evening
-    };
-    await docRoute.set(json);
+  }
+
+  Future deleteRoute(String name) async {
+    await FirebaseFirestore.instance
+        .collection(collectionNameForMaps)
+        .doc(name)
+        .delete();
   }
 }

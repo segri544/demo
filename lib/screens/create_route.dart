@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_mao/resources/firestore_method.dart';
 import 'package:flutter/material.dart';
-// import 'package:google_mao/order_traking_page.dart';
 import 'dart:async' show Completer;
 import 'dart:ui' as ui;
-// import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_mao/resources/constants.dart';
@@ -63,7 +61,6 @@ class CreateRoutePageState extends State<CreateRoutePage> {
         (pictureSize - textPainter.height) / 2,
       ),
     );
-
     final ui.Image markerImage = await pictureRecorder
         .endRecording()
         .toImage(pictureSize.toInt(), pictureSize.toInt());
@@ -157,7 +154,6 @@ class CreateRoutePageState extends State<CreateRoutePage> {
             (PointLatLng point) => LatLng(point.latitude, point.longitude)));
       }
     }
-
     setState(() {
       polylines.add(
         Polyline(
@@ -175,6 +171,7 @@ class CreateRoutePageState extends State<CreateRoutePage> {
     String driverName = '';
     String PhoneNumber = '';
     double lat, long;
+    String vehiclePlate = "";
     List<GeoPoint> konum = [];
 
     // Map<String, dynamic> _uploadData = <String, dynamic>{};
@@ -189,7 +186,7 @@ class CreateRoutePageState extends State<CreateRoutePage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Enter Route and Driver Details'),
+              title: const Text('Rota Verileri'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -197,24 +194,35 @@ class CreateRoutePageState extends State<CreateRoutePage> {
                     onChanged: (value) {
                       routeName = value;
                     },
-                    decoration: const InputDecoration(hintText: 'Güzergah Adı'),
+                    decoration: const InputDecoration(
+                      hintText: 'Güzergah Adı',
+                    ),
                   ),
                   TextField(
                     onChanged: (value) {
                       driverName = value;
                     },
-                    decoration:
-                        const InputDecoration(hintText: "Driver's Name"),
+                    decoration: const InputDecoration(
+                      hintText: "Şöför İsmi",
+                    ),
                   ),
                   TextField(
                     onChanged: (value) {
                       PhoneNumber = value;
                     },
-                    decoration:
-                        const InputDecoration(hintText: "Telefon Numarası"),
+                    decoration: const InputDecoration(
+                      hintText: "Telefon Numarası",
+                    ),
+                  ),
+                  TextField(
+                    // New TextField for the vehicle plate
+                    onChanged: (value) {
+                      vehiclePlate = value;
+                    },
+                    decoration: const InputDecoration(hintText: "Araç Plakası"),
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Checkbox(
                         value: isMorningSelected,
@@ -224,7 +232,7 @@ class CreateRoutePageState extends State<CreateRoutePage> {
                           });
                         },
                       ),
-                      const Text('Morning'),
+                      const Text('Sabah'),
                       Checkbox(
                         value: isEveningSelected,
                         onChanged: (value) {
@@ -233,7 +241,7 @@ class CreateRoutePageState extends State<CreateRoutePage> {
                           });
                         },
                       ),
-                      const Text('Evening'),
+                      const Text('Akşam'),
                     ],
                   ),
                 ],
@@ -243,13 +251,13 @@ class CreateRoutePageState extends State<CreateRoutePage> {
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
-                  child: const Text('Cancel'),
+                  child: const Text('iptal'),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     if (routeName.isNotEmpty && driverName.isNotEmpty) {}
                     Navigator.of(context).pop(); // Close the dialog
-                    print("*********************\n");
+                    // print("*********************\n");
                     for (int i = 0; i < markerIdCounter; i++) {
                       String? newString =
                           markers.elementAt(i).infoWindow.snippet?.substring(7);
@@ -262,16 +270,20 @@ class CreateRoutePageState extends State<CreateRoutePage> {
                       // GeoPoint(latLngValues?[0], latLngValues?[1]);
                       konum.add(GeoPoint(lat, long));
                     }
-                    print(konum);
+                    routeName = routeName.replaceAll(" ", "");
+                    vehiclePlate = vehiclePlate.replaceAll(" ", "");
+                    PhoneNumber = PhoneNumber.replaceAll(" ", "");
+
                     FireStoreMethods().uploadRoute(
-                        routeName,
-                        driverName,
+                        routeName.toLowerCase(),
+                        driverName.toLowerCase(),
                         PhoneNumber,
+                        vehiclePlate.toLowerCase(),
                         konum,
                         isMorningSelected,
                         isEveningSelected);
                   },
-                  child: Text('Save'),
+                  child: Text('Kaydet'),
                 ),
               ],
             );
@@ -281,12 +293,6 @@ class CreateRoutePageState extends State<CreateRoutePage> {
     );
   }
 
-  void _writeFirebase() {
-    //todo
-  }
-  void _readFirebase() {
-    //todo
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
