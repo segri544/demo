@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "784069472391",
+    "project_id": "havelsan-map",
+    "storage_bucket": "havelsan-map.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:784069472391:android:a58bac198ae922333c0822",
+        "android_client_info": {
+          "package_name": "com.example.google_mao"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "784069472391-bi50imj7oo9hde8g6u7kpl818fqv9dbp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsFzZzQtky6FBZ0bWMgm7aUAGA6zxwXTg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "784069472391-bi50imj7oo9hde8g6u7kpl818fqv9dbp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "784069472391-18mdm9a9vm3soe4sditr79585r94lonb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.googleMao"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
