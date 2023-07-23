@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_mao/resources/constants.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class TrackPage extends StatefulWidget {
   final String documentId;
@@ -14,21 +17,28 @@ class TrackPage extends StatefulWidget {
 
 class _TrackPageState extends State<TrackPage> {
   bool isMorning = true; // Default is morning
+  GoogleMapController? _mapController;
+  List<LatLng> _routePoints = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey,
-        title: Text(widget.documentId),
+        title:
+            Text(widget.documentId.toUpperCase()), // Use widget.documentId here
         titleTextStyle: TextStyle(
-            color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+          color: Colors.black,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
         actions: [
           Switch(
             value: isMorning,
             onChanged: (value) {
               setState(() {
                 isMorning = value;
+                // _updateRoute(); // Update the route when the switch changes
               });
             },
           ),
@@ -53,23 +63,48 @@ class _TrackPageState extends State<TrackPage> {
             final bool hasMorningData = data.containsKey("sabah");
             final bool hasEveningData = data.containsKey("akşam");
 
-            return ListView.builder(
-              itemCount:
-                  isMorning && hasMorningData || !isMorning && hasEveningData
-                      ? 1
-                      : 0,
-              itemBuilder: (context, index) {
-                if (isMorning && hasMorningData) {
-                  // Display morning data
-                  final morningData = data["sabah"] as Map<String, dynamic>;
-                  return _buildListTile("Morning", morningData);
-                } else if (!isMorning && hasEveningData) {
-                  // Display evening data
-                  final eveningData = data["akşam"] as Map<String, dynamic>;
-                  return _buildListTile("Evening", eveningData);
+            // Get the locations based on the selected switch value
+            final locations = isMorning && hasMorningData
+                ? data["sabah"]!["locations"]
+                : (!isMorning && hasEveningData
+                    ? data["akşam"]!["locations"]
+                    : null);
+
+            // Clear the route points
+            _routePoints.clear();
+
+            // Add the route points
+            if (locations != null) {
+              for (var location in locations) {
+                if (location is GeoPoint) {
+                  _routePoints
+                      .add(LatLng(location.latitude, location.longitude));
+                }
+              }
+            }
+
+            // Return the Google Maps widget
+            return FutureBuilder<Set<Polyline>>(
+              future: _createPolylinesSet(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
                 } else {
-                  return SizedBox
-                      .shrink(); // Empty placeholder if data is not available
+                  return GoogleMap(
+                    onMapCreated: (controller) {
+                      _mapController = controller;
+                    },
+                    markers: _createMarkersSet(),
+                    polylines: snapshot.data ?? {},
+                    initialCameraPosition: CameraPosition(
+                      target: _routePoints.isNotEmpty
+                          ? _routePoints.first
+                          : LatLng(39.915447686012385, 32.772942732056286),
+                      zoom: 14,
+                    ),
+                  );
                 }
               },
             );
@@ -79,38 +114,116 @@ class _TrackPageState extends State<TrackPage> {
     );
   }
 
-  Widget _buildListTile(String title, Map<String, dynamic> data) {
-    return Card(
-      child: ListTile(
-        title: Text(title),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Name: ${data['name']}"),
-            Text("Driver Name: ${data['driverName']}"),
-            Text("Phone: ${data['phone']}"),
-            _buildGeoPointInfo(data['locations']),
-          ],
+  // Method to create marker set with custom marker icons
+  Set<Marker> _createMarkersSet() {
+    if (_routePoints.isEmpty)
+      return {}; // Return an empty set if there are no route points
+
+    List<LatLng> markersToShow = [];
+    markersToShow.add(_routePoints.first); // Add the first marker
+    markersToShow.add(_routePoints.last); // Add the last marker
+
+    return markersToShow.asMap().entries.map((entry) {
+      int index = entry.key;
+      LatLng latLng = entry.value;
+
+      return Marker(
+        markerId: MarkerId(index.toString()),
+        position: latLng,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        infoWindow: InfoWindow(
+          title: 'Marker $index',
+          snippet: '${latLng.latitude}, ${latLng.longitude}',
         ),
-      ),
-    );
+      );
+    }).toSet();
   }
 
-  Widget _buildGeoPointInfo(List<dynamic>? locations) {
-    if (locations == null || locations.isEmpty) {
-      return Text("No GeoPoints available");
-    }
+  // Method to create polyline set
+  Future<Set<Polyline>> _createPolylinesSet() async {
+    if (_routePoints.length > 1) {
+      List<LatLng> routePoints = [];
+      for (int i = 0; i < _routePoints.length - 1; i++) {
+        List<LatLng> segmentPoints =
+            await fetchRoutePoints(_routePoints[i], _routePoints[i + 1]);
+        routePoints.addAll(segmentPoints);
+      }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("GeoPoints:"),
-        for (var location in locations)
-          if (location is GeoPoint)
-            Text(
-              "Latitude: ${location.latitude}, Longitude: ${location.longitude}",
-            ),
-      ],
-    );
+      return {
+        Polyline(
+          polylineId: PolylineId('route'),
+          color: Colors.blue,
+          width: 5,
+          points: routePoints,
+        ),
+      };
+    } else {
+      return {};
+    }
+  }
+
+  // Function to fetch route data from Directions API
+  Future<List<LatLng>> fetchRoutePoints(
+      LatLng origin, LatLng destination) async {
+    final apiKey = google_api_key;
+    final apiUrl =
+        "https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey";
+
+    final response = await http.get(Uri.parse(apiUrl));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data["status"] == "OK") {
+        final List<dynamic> routes = data["routes"];
+        if (routes.isNotEmpty) {
+          final List<dynamic> legs = routes[0]["legs"];
+          if (legs.isNotEmpty) {
+            final List<dynamic> steps = legs[0]["steps"];
+            List<LatLng> points = [];
+            for (final step in steps) {
+              final encodedPolyline = step["polyline"]["points"];
+              final List<LatLng> decodedPoints =
+                  decodeEncodedPolyline(encodedPolyline);
+              points.addAll(decodedPoints);
+            }
+            return points;
+          }
+        }
+      }
+    }
+    return [];
+  }
+
+  // Helper function to decode the encoded polyline points
+  List<LatLng> decodeEncodedPolyline(String encoded) {
+    List<LatLng> points = [];
+    int index = 0;
+    int lat = 0;
+    int lng = 0;
+    while (index < encoded.length) {
+      int b;
+      int shift = 0;
+      int result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1F) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lat += dlat;
+      shift = 0;
+      result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1F) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lng += dlng;
+
+      double latitude = lat / 1e5;
+      double longitude = lng / 1e5;
+      points.add(LatLng(latitude, longitude));
+    }
+    return points;
   }
 }

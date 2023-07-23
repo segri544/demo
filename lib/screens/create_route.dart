@@ -270,13 +270,16 @@ class CreateRoutePageState extends State<CreateRoutePage> {
                       // GeoPoint(latLngValues?[0], latLngValues?[1]);
                       konum.add(GeoPoint(lat, long));
                     }
-                    routeName = routeName.replaceAll(" ", "");
+                    while (routeName.endsWith(" ")) {
+                      routeName = routeName.trimRight();
+                    }
+
                     vehiclePlate = vehiclePlate.replaceAll(" ", "");
                     PhoneNumber = PhoneNumber.replaceAll(" ", "");
 
                     FireStoreMethods().uploadRoute(
                         routeName.toLowerCase(),
-                        driverName.toLowerCase(),
+                        driverName,
                         PhoneNumber,
                         vehiclePlate.toLowerCase(),
                         konum,

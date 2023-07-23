@@ -35,8 +35,8 @@ class _ListRoutesPageState extends State<ListRoutesPage> {
               itemCount: documents.length,
               itemBuilder: (context, index) {
                 // Build a widget for each document in the collection
-                final documentData =
-                    documents[index].data() as Map<String, dynamic>;
+                // final documentData =
+                //     documents[index].data() as Map<String, dynamic>;
                 final documentId = documents[index].id; // Get the document ID
                 return Padding(
                   padding: const EdgeInsets.symmetric(
@@ -46,7 +46,7 @@ class _ListRoutesPageState extends State<ListRoutesPage> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0)),
                     child: ListTile(
-                      title: Text(documentId),
+                      title: Text(documentId.toUpperCase()),
                       // Add any other UI elements you want to display for each document
                       onTap: () {
                         // Navigate to the TrackPage and pass the document ID

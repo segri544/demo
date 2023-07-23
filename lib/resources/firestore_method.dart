@@ -51,65 +51,76 @@ class FireStoreMethods {
 //************************************************************ */
   // Same function will be used for update
 
-  Future uploadRoute(String name, String driverName, String phone,
-      String NumberPlate, List konum, bool morning, bool evening) async {
-    Map<String, dynamic> json = {};
-    DocumentSnapshot snapshot = await FirebaseFirestore.instance
-        .collection(collectionNameForMaps)
-        .doc(name)
-        .get();
-    if (morning && !evening) {
-      json = {
-        "sabah": {
-          "name": name,
-          "driverName": driverName,
-          "phone": phone,
-          "numberPlate": NumberPlate,
-          "locations": konum,
-        }
-      };
-    } else if (evening && !morning) {
-      json = {
-        "akşam": {
-          "name": name,
-          "driverName": driverName,
-          "phone": phone,
-          "numberPlate": NumberPlate,
-          "locations": konum,
-        }
-      };
-    } else {
-      json = {
-        "sabah": {
-          "name": name,
-          "driverName": driverName,
-          "phone": phone,
-          "numberPlate": NumberPlate,
-          "locations": konum,
-        },
-        "akşam": {
-          "name": name,
-          "driverName": driverName,
-          "phone": phone,
-          "numberPlate": NumberPlate,
-          "locations": konum,
-        }
-      };
-    }
-    ;
-    if (snapshot.exists) {
-      await FirebaseFirestore.instance
+  Future<void> uploadRoute(
+      String name,
+      String driverName,
+      String phone,
+      String NumberPlate,
+      List<dynamic> konum,
+      bool morning,
+      bool evening) async {
+    try {
+      Map<String, dynamic> json = {};
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
           .collection(collectionNameForMaps)
           .doc(name)
-          .update(json);
-    } else {
-      final docRoute = FirebaseFirestore.instance
-          .collection(collectionNameForMaps)
-          .doc(name);
+          .get();
 
-      await docRoute.set(json);
+      if (morning && !evening) {
+        json = {
+          "sabah": {
+            "name": name,
+            "driverName": driverName,
+            "phone": phone,
+            "numberPlate": NumberPlate,
+            "locations": konum,
+          }
+        };
+      } else if (evening && !morning) {
+        json = {
+          "akşam": {
+            "name": name,
+            "driverName": driverName,
+            "phone": phone,
+            "numberPlate": NumberPlate,
+            "locations": konum,
+          }
+        };
+      } else {
+        json = {
+          "sabah": {
+            "name": name,
+            "driverName": driverName,
+            "phone": phone,
+            "numberPlate": NumberPlate,
+            "locations": konum,
+          },
+          "akşam": {
+            "name": name,
+            "driverName": driverName,
+            "phone": phone,
+            "numberPlate": NumberPlate,
+            "locations": konum,
+          }
+        };
+      }
+
+      if (snapshot.exists) {
+        await FirebaseFirestore.instance
+            .collection(collectionNameForMaps)
+            .doc(name)
+            .update(json);
+      } else {
+        final docRoute = FirebaseFirestore.instance
+            .collection(collectionNameForMaps)
+            .doc(name);
+
+        await docRoute.set(json);
+      }
+      print("Route update/upload successful!");
+    } catch (e) {
+      print("Error updating/uploading route: $e");
     }
-    // referance to document
   }
 
   Future deleteRoute(String name) async {
