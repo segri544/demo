@@ -36,6 +36,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mao/screens/create_route.dart';
+import 'package:google_mao/screens/ListRoute.dart';
+
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -52,15 +54,31 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Home Page')),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            // Navigate to the second page when the button is pressed
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CreateRoutePage()),
-            );
-          },
-          child: Text('Create Route'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to the CreateRoutePage when the button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CreateRoutePage()),
+                );
+              },
+              child: Text('Create Route'),
+            ),
+            SizedBox(height: 20), // Add some spacing between buttons
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to the ListRoutesPage when the button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ListRoutesPage()),
+                );
+              },
+              child: Text('List Routes'),
+            ),
+          ],
         ),
       ),
     );
