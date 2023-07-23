@@ -2,20 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class TrackPage extends StatelessWidget {
+class TrackPage extends StatefulWidget {
   final String documentId;
 
   // Constructor to receive the document ID
   TrackPage({required this.documentId});
 
   @override
+  _TrackPageState createState() => _TrackPageState();
+}
+
+class _TrackPageState extends State<TrackPage> {
+  bool isMorning = true; // Default is morning
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Track Page')),
+      appBar: AppBar(
+        backgroundColor: Colors.grey,
+        title: Text(widget.documentId),
+        titleTextStyle: TextStyle(
+            color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+        actions: [
+          Switch(
+            value: isMorning,
+            onChanged: (value) {
+              setState(() {
+                isMorning = value;
+              });
+            },
+          ),
+        ],
+      ),
       body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         stream: FirebaseFirestore.instance
             .collection('Maps')
-            .doc(documentId)
+            .doc(widget.documentId)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -32,23 +54,22 @@ class TrackPage extends StatelessWidget {
             final bool hasEveningData = data.containsKey("akşam");
 
             return ListView.builder(
-              itemCount: hasMorningData && hasEveningData ? 2 : 1,
+              itemCount:
+                  isMorning && hasMorningData || !isMorning && hasEveningData
+                      ? 1
+                      : 0,
               itemBuilder: (context, index) {
-                if (index == 0 && hasMorningData) {
+                if (isMorning && hasMorningData) {
                   // Display morning data
                   final morningData = data["sabah"] as Map<String, dynamic>;
                   return _buildListTile("Morning", morningData);
-                } else if (index == 1 && hasEveningData) {
+                } else if (!isMorning && hasEveningData) {
                   // Display evening data
                   final eveningData = data["akşam"] as Map<String, dynamic>;
                   return _buildListTile("Evening", eveningData);
                 } else {
-                  // If only morning or evening data is present, display that data
-                  final singleData = data.values.first as Map<String, dynamic>;
-                  return _buildListTile(
-                    singleData.containsKey('sabah') ? "Morning" : "Evening",
-                    singleData,
-                  );
+                  return SizedBox
+                      .shrink(); // Empty placeholder if data is not available
                 }
               },
             );

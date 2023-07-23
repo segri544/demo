@@ -11,7 +11,12 @@ class _ListRoutesPageState extends State<ListRoutesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('List Routes')),
+      appBar: AppBar(
+        title: Text('List Routes'),
+        backgroundColor: Colors.grey,
+        titleTextStyle: TextStyle(
+            color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+      ),
       body: FutureBuilder<QuerySnapshot>(
         future: FirebaseFirestore.instance
             .collection('Maps')

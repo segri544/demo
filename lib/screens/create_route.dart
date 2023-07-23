@@ -297,12 +297,14 @@ class CreateRoutePageState extends State<CreateRoutePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.grey,
         title: const Text(
           "Güzergah Oluşturma Ekrani",
           style:
-              TextStyle(color: ui.Color.fromARGB(255, 0, 0, 0), fontSize: 16),
+              TextStyle(color: ui.Color.fromARGB(255, 0, 0, 0), fontSize: 20),
         ),
-        backgroundColor: Colors.white,
+        titleTextStyle: TextStyle(
+            color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
         actions: [
           PopupMenuButton<String>(
             color: ui.Color.fromARGB(255, 108, 107, 107),
