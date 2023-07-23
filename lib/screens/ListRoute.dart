@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import the Firestore plugin
-import 'package:google_mao/screens/track_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'track_page.dart'; // Import the TrackPage
 
 class ListRoutesPage extends StatefulWidget {
   @override
@@ -32,6 +32,7 @@ class _ListRoutesPageState extends State<ListRoutesPage> {
                 // Build a widget for each document in the collection
                 final documentData =
                     documents[index].data() as Map<String, dynamic>;
+                final documentId = documents[index].id; // Get the document ID
                 return Padding(
                   padding: const EdgeInsets.symmetric(
                       vertical: 8.0, horizontal: 16.0),
@@ -40,15 +41,15 @@ class _ListRoutesPageState extends State<ListRoutesPage> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0)),
                     child: ListTile(
-                      title: Text(documents[index].id),
+                      title: Text(documentId),
                       // Add any other UI elements you want to display for each document
                       onTap: () {
-                        // Navigate to the TrackPage and pass the document data
+                        // Navigate to the TrackPage and pass the document ID
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                TrackPage(documentData: documentData),
+                                TrackPage(documentId: documentId),
                           ),
                         );
                       },
