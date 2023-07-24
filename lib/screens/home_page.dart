@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => MapScreen(),
+              builder: (context) => MapScreen(), // bottombar ortasındaki button
             ),
           );
         },
