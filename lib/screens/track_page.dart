@@ -4,6 +4,7 @@ import 'package:google_mao/resources/constants.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 
 class TrackPage extends StatefulWidget {
   final String documentId;
@@ -114,32 +115,52 @@ class _TrackPageState extends State<TrackPage> {
     );
   }
 
-  // Method to create marker set with custom marker icons
   Set<Marker> _createMarkersSet() {
-    if (_routePoints.isEmpty)
-      return {}; // Return an empty set if there are no route points
+    if (_routePoints.isEmpty) return {};
 
-    List<LatLng> markersToShow = [];
-    markersToShow.add(_routePoints.first); // Add the first marker
-    markersToShow.add(_routePoints.last); // Add the last marker
+    // Create markers for the start and end points of the route
+    Marker startMarker = Marker(
+      markerId: MarkerId('startMarker'),
+      position: _routePoints.first,
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+          isMorning ? BitmapDescriptor.hueBlue : BitmapDescriptor.hueOrange),
+      infoWindow: InfoWindow(
+        title: isMorning ? 'Sabah Kalkış' : 'Akşam Varış',
+        snippet:
+            '${_routePoints.first.latitude}, ${_routePoints.first.longitude}',
+      ),
+    );
+
+    Marker endMarker = Marker(
+      markerId: MarkerId('endMarker'),
+      position: _routePoints.last,
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+          isMorning ? BitmapDescriptor.hueBlue : BitmapDescriptor.hueOrange),
+      infoWindow: InfoWindow(
+        title: isMorning ? 'Sabah Varış' : 'Akşam Kalkış',
+        snippet:
+            '${_routePoints.last.latitude}, ${_routePoints.last.longitude}',
+      ),
+    );
+
+    List<Marker> markersToShow = [startMarker, endMarker];
 
     return markersToShow.asMap().entries.map((entry) {
       int index = entry.key;
-      LatLng latLng = entry.value;
+      Marker marker = entry.value;
 
       return Marker(
         markerId: MarkerId(index.toString()),
-        position: latLng,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        position: marker.position,
+        icon: marker.icon,
         infoWindow: InfoWindow(
-          title: 'Marker $index',
-          snippet: '${latLng.latitude}, ${latLng.longitude}',
+          title: marker.infoWindow.title,
+          snippet: marker.infoWindow.snippet,
         ),
       );
     }).toSet();
   }
 
-  // Method to create polyline set
   Future<Set<Polyline>> _createPolylinesSet() async {
     if (_routePoints.length > 1) {
       List<LatLng> routePoints = [];
@@ -149,10 +170,12 @@ class _TrackPageState extends State<TrackPage> {
         routePoints.addAll(segmentPoints);
       }
 
+      Color polylineColor = isMorning ? Colors.blue : Colors.orange;
+
       return {
         Polyline(
           polylineId: PolylineId('route'),
-          color: Colors.blue,
+          color: polylineColor,
           width: 5,
           points: routePoints,
         ),
