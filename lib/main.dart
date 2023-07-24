@@ -1,3 +1,11 @@
+/// >>>>>>  Author: Berke Gürel <<<<<
+/// Explanation:
+/// The code below is a Flutter app that initializes
+/// Firebase and checks if the user is logged in. If the user is logged in,
+/// it navigates to the HomePage, otherwise, it navigates to the LoginPage.
+/// The app uses a StreamBuilder to listen for changes in the user's authentication state.
+/// The app also sets the app bar color to a custom blue color.
+
 import 'package:demo_app/screens/home_page.dart';
 import 'package:demo_app/screens/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';

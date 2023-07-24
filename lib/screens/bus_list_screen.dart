@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_app/components/bus_card.dart';
-import 'package:demo_app/screens/track_page.dart'; // Import the TrackPage
+import 'package:demo_app/screens/track_page.dart';
 
 class BusListScreen extends StatelessWidget {
   const BusListScreen({Key? key}) : super(key: key);
@@ -9,10 +9,6 @@ class BusListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Güzargahlar"),
-        centerTitle: true,
-      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('Maps').snapshots(),
         builder: (context, snapshot) {
@@ -23,26 +19,40 @@ class BusListScreen extends StatelessWidget {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(),
             );
           }
 
           final routes = snapshot.data!.docs;
 
+          final uniqueRoutes = <String, Map<String, dynamic>>{};
+
+          for (final route in routes) {
+            final routeData = route.data() as Map<String, dynamic>;
+            final routeName = route.id;
+
+            final morningData = routeData['sabah']
+                as Map<String, dynamic>?; // Use null safety for safe access
+            final eveningData = routeData['akşam']
+                as Map<String, dynamic>?; // Use null safety for safe access
+
+            if (morningData != null || eveningData != null) {
+              uniqueRoutes[routeName] = {
+                if (morningData != null) ...morningData,
+                if (eveningData != null) ...eveningData,
+              };
+            }
+          }
+
           return ListView.builder(
-            itemCount: routes.length,
+            itemCount: uniqueRoutes.length,
             itemBuilder: (context, index) {
-              final routeData = routes[index].data() as Map<String, dynamic>;
-              final routeName = routes[index].id;
-              final morningData = routeData['sabah']
-                  as Map<String, dynamic>?; // Use null safety for safe access
-              final eveningData = routeData['akşam']
-                  as Map<String, dynamic>?; // Use null safety for safe access
+              final routeName = uniqueRoutes.keys.elementAt(index);
+              final routeData = uniqueRoutes[routeName]!;
 
               return GestureDetector(
                 onTap: () {
-                  // Navigate to TrackPage when the list item is tapped
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -50,16 +60,12 @@ class BusListScreen extends StatelessWidget {
                     ),
                   );
                 },
-                child: Column(
-                  children: [
-                    if (morningData != null || eveningData != null) ...[
-                      BusCard(
-                        carPlate: morningData?['numberPlate'],
-                        routeName: routeName,
-                        // You can pass other relevant data from morningData here
-                      ),
-                    ],
-                  ],
+                child: BusCard(
+                  carPlate: routeData['numberPlate'],
+                  routeName: routeData["name"],
+                  driverName: routeData["driverName"],
+                  phoneNumber: routeData['phone'],
+                  // You can pass other relevant data from routeData here
                 ),
               );
             },

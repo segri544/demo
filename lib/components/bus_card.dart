@@ -3,8 +3,15 @@ import 'package:flutter/material.dart';
 class BusCard extends StatelessWidget {
   final String carPlate;
   final String routeName;
+  final String driverName;
+  final String phoneNumber;
 
-  const BusCard({Key? key, required this.carPlate, required this.routeName})
+  const BusCard(
+      {Key? key,
+      required this.carPlate,
+      required this.routeName,
+      required this.driverName,
+      required this.phoneNumber})
       : super(key: key);
 
   @override
@@ -44,9 +51,9 @@ class BusCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Şöför : Selim"),
+                        Text("Şöför : ${driverName}"),
                         SizedBox(width: 15),
-                        Text("Araç Kapasitesi : 18/24"),
+                        Text("Tel : ${phoneNumber}"),
                       ],
                     ),
                   ],
