@@ -46,12 +46,17 @@ class BusCard extends StatelessWidget {
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [Text(routeName.toUpperCase())],
+                      children: [
+                        Text(
+                          routeName.toUpperCase(),
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )
+                      ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Şöför : ${driverName}"),
+                        Text("Şöför : ${driverName.toUpperCase()}"),
                         SizedBox(width: 15),
                         Text("Tel : ${phoneNumber}"),
                       ],

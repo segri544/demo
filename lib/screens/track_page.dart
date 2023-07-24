@@ -53,7 +53,6 @@ class _TrackPageState extends State<TrackPage> {
             onChanged: (bool state) {
               setState(() {
                 isMorning = state;
-                // _updateRoute(); // Update the route when the switch changes
               });
             },
           ),
@@ -111,6 +110,8 @@ class _TrackPageState extends State<TrackPage> {
                     onMapCreated: (controller) {
                       _mapController = controller;
                     },
+                    zoomControlsEnabled: false,
+                    mapToolbarEnabled: true,
                     markers: _createMarkersSet(),
                     polylines: snapshot.data ?? {},
                     initialCameraPosition: CameraPosition(
@@ -127,7 +128,7 @@ class _TrackPageState extends State<TrackPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.settings),
+        child: Icon(Icons.location_on),
         onPressed: () {},
       ),
     );
