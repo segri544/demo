@@ -1,7 +1,7 @@
 // import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_mao/models/destination_model.dart';
+import 'package:demo_app/models/destination_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FireStoreMethods {

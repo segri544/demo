@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_mao/models/user_model.dart' as model;
+import 'package:demo_app/models/user_model.dart' as model;
 
 class AuthMethods {
   final _auth = FirebaseAuth.instance;

@@ -1,6 +1,6 @@
-import 'package:google_mao/screens/bus_list_screen.dart';
-import 'package:google_mao/screens/map_screen.dart';
-import 'package:google_mao/screens/profile_screen.dart';
+import 'package:demo_app/screens/bus_list_screen.dart';
+import 'package:demo_app/screens/map_screen.dart';
+import 'package:demo_app/screens/profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_mao/resources/constants.dart';
+import 'package:demo_app/resources/constants.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:animated_toggle_switch/animated_toggle_switch.dart';
+import 'package:lite_rolling_switch/lite_rolling_switch.dart';
+
+// import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 
 class TrackPage extends StatefulWidget {
   final String documentId;
@@ -25,20 +27,32 @@ class _TrackPageState extends State<TrackPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.grey,
-        title:
-            Text(widget.documentId.toUpperCase()), // Use widget.documentId here
-        titleTextStyle: TextStyle(
-          color: Colors.black,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
+        backgroundColor: Colors.blue, // Custom background color
+        elevation: 4, // Add a shadow/elevation to the AppBar
+        toolbarHeight: 45, // Increase the AppBar's height for a modern look
+        title: Text(widget.documentId.toUpperCase(),
+            style: TextStyle(
+              color: Colors.white, // Set the title text color
+              fontSize: 20, // Increase the font size
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Montserrat', // Use a custom font
+            )),
         actions: [
-          Switch(
+          LiteRollingSwitch(
             value: isMorning,
-            onChanged: (value) {
+            textOn: 'Sabah',
+            textOff: 'Akşam',
+            width: 100,
+            colorOn: Color.fromARGB(255, 239, 231, 5),
+            colorOff: const Color.fromARGB(255, 13, 64, 90),
+            iconOn: Icons.wb_sunny,
+            iconOff: Icons.brightness_3,
+            onDoubleTap: () {},
+            onSwipe: () {},
+            onTap: () {},
+            onChanged: (bool state) {
               setState(() {
-                isMorning = value;
+                isMorning = state;
                 // _updateRoute(); // Update the route when the switch changes
               });
             },
@@ -123,7 +137,7 @@ class _TrackPageState extends State<TrackPage> {
       markerId: MarkerId('startMarker'),
       position: _routePoints.first,
       icon: BitmapDescriptor.defaultMarkerWithHue(
-          isMorning ? BitmapDescriptor.hueBlue : BitmapDescriptor.hueOrange),
+          isMorning ? BitmapDescriptor.hueOrange : BitmapDescriptor.hueBlue),
       infoWindow: InfoWindow(
         title: isMorning ? 'Sabah Kalkış' : 'Akşam Varış',
         snippet:
@@ -135,7 +149,7 @@ class _TrackPageState extends State<TrackPage> {
       markerId: MarkerId('endMarker'),
       position: _routePoints.last,
       icon: BitmapDescriptor.defaultMarkerWithHue(
-          isMorning ? BitmapDescriptor.hueBlue : BitmapDescriptor.hueOrange),
+          isMorning ? BitmapDescriptor.hueOrange : BitmapDescriptor.hueBlue),
       infoWindow: InfoWindow(
         title: isMorning ? 'Sabah Varış' : 'Akşam Kalkış',
         snippet:
@@ -170,7 +184,7 @@ class _TrackPageState extends State<TrackPage> {
         routePoints.addAll(segmentPoints);
       }
 
-      Color polylineColor = isMorning ? Colors.blue : Colors.orange;
+      Color polylineColor = isMorning ? Colors.orange : Colors.blue;
 
       return {
         Polyline(

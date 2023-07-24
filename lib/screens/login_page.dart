@@ -1,7 +1,7 @@
-import 'package:google_mao/components/button_large.dart';
-import 'package:google_mao/components/my_textfield.dart';
-import 'package:google_mao/resources/auth_method.dart';
-import 'package:google_mao/screens/signup_screen.dart';
+import 'package:demo_app/components/button_large.dart';
+import 'package:demo_app/components/my_textfield.dart';
+import 'package:demo_app/resources/auth_method.dart';
+import 'package:demo_app/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {

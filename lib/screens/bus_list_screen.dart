@@ -1,4 +1,4 @@
-import 'package:google_mao/components/bus_card.dart';
+import 'package:demo_app/components/bus_card.dart';
 import 'package:flutter/material.dart';
 
 class BusListScreen extends StatelessWidget {

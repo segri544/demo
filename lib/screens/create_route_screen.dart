@@ -1,8 +1,8 @@
 import 'dart:ffi';
 
-import 'package:google_mao/components/button_large.dart';
-import 'package:google_mao/components/my_textfield.dart';
-import 'package:google_mao/resources/firestore_method.dart';
+import 'package:demo_app/components/button_large.dart';
+import 'package:demo_app/components/my_textfield.dart';
+import 'package:demo_app/resources/firestore_method.dart';
 import 'package:flutter/material.dart';
 
 class CreateRouteScreen extends StatefulWidget {
