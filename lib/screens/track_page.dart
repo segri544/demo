@@ -126,6 +126,10 @@ class _TrackPageState extends State<TrackPage> {
           }
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.settings),
+        onPressed: () {},
+      ),
     );
   }
 

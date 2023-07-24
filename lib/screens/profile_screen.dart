@@ -60,23 +60,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: const TextStyle(fontSize: 25),
                         ),
                         const SizedBox(height: 20),
-                        SizedBox(
-                          width: 120,
-                          height: 120,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(100),
-                            child: const CircleAvatar(
-                              backgroundColor: Colors.green,
-                            ),
-                          ),
-                        ),
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(userData["name"]),
-                            const SizedBox(width: 3),
-                            Text(userData["lastName"]),
+                            Text(
+                              "${userData["name"]} ${userData["lastName"]}",
+                              style: const TextStyle(
+                                  fontSize: 32, fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                         Text(userData["email"]),
@@ -112,23 +104,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => CreateRoutePage(),
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.amber,
-                              side: BorderSide.none,
-                              shape: const StadiumBorder()),
-                          child: const Text(
-                            "Rota Oluştur",
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
+                        userData["position"] == "Şöför"
+                            ? ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => CreateRoutePage(),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.amber,
+                                    side: BorderSide.none,
+                                    shape: const StadiumBorder()),
+                                child: const Text(
+                                  "Rota Oluştur",
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              )
+                            : const SizedBox(),
                         const SizedBox(height: 10),
                         const Divider(),
                         const SizedBox(height: 10),

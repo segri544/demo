@@ -17,12 +17,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final User? user = FirebaseAuth.instance.currentUser;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Güzargahlar"),
-        centerTitle: true,
-      ),
       body: SafeArea(
         child: screens[selectedIndex],
       ),

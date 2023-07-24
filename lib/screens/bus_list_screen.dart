@@ -9,6 +9,10 @@ class BusListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Güzargahlar"),
+        centerTitle: true,
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('Maps').snapshots(),
         builder: (context, snapshot) {
@@ -19,7 +23,7 @@ class BusListScreen extends StatelessWidget {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           }
@@ -48,17 +52,11 @@ class BusListScreen extends StatelessWidget {
                 },
                 child: Column(
                   children: [
-                    if (morningData != null) ...[
+                    if (morningData != null || eveningData != null) ...[
                       BusCard(
-                        carPlate: morningData['numberPlate'],
-
+                        carPlate: morningData?['numberPlate'],
+                        routeName: routeName,
                         // You can pass other relevant data from morningData here
-                      ),
-                    ],
-                    if (eveningData != null) ...[
-                      BusCard(
-                        carPlate: eveningData['numberPlate'],
-                        // You can pass other relevant data from eveningData here
                       ),
                     ],
                   ],

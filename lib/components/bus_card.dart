@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 class BusCard extends StatelessWidget {
   final String carPlate;
-  const BusCard({super.key, required this.carPlate});
+  final String routeName;
+
+  const BusCard({Key? key, required this.carPlate, required this.routeName})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +16,9 @@ class BusCard extends StatelessWidget {
         child: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
-                image: AssetImage("assets/bus_logo.jpg"), opacity: 0.2),
+              image: AssetImage("assets/bus_logo.jpg"),
+              opacity: 0.2,
+            ),
           ),
           height: 150,
           child: Padding(
@@ -27,20 +32,21 @@ class BusCard extends StatelessWidget {
                     Text(
                       carPlate,
                       style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold),
+                        color: Colors.black,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [Text("HAVELSAN teknoloji kampüsü - Çankaya")],
+                      children: [Text(routeName.toUpperCase())],
                     ),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text("Şöför : Selim"),
                         SizedBox(width: 15),
-                        Text("Araç Kapasitesi : 18/24")
+                        Text("Araç Kapasitesi : 18/24"),
                       ],
                     ),
                   ],
