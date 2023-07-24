@@ -13,7 +13,7 @@ class BusListScreen extends StatelessWidget {
             child: ListView.builder(
               itemCount: 6,
               itemBuilder: (context, index) {
-                return const BusCard(busId: "06 ab 015");
+                return const BusCard(carPlate: "06 ab 015");
               },
             ),
           )

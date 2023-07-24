@@ -296,21 +296,34 @@ class CreateRoutePageState extends State<CreateRoutePage> {
     );
   }
 
+//  backgroundColor: Colors.blue, // Custom background color
+//         elevation: 4, // Add a shadow/elevation to the AppBar
+//         toolbarHeight: 45, // Increase the AppBar's height for a modern look
+//         title: Text(widget.documentId.toUpperCase(),
+//             style: TextStyle(
+//               color: Colors.white, // Set the title text color
+//               fontSize: 20, // Increase the font size
+//               fontWeight: FontWeight.bold,
+//               fontFamily: 'Montserrat', // Use a custom font
+//             )),
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.grey,
+        backgroundColor: Colors.blue,
         title: const Text(
           "Güzergah Oluşturma Ekrani",
-          style:
-              TextStyle(color: ui.Color.fromARGB(255, 0, 0, 0), fontSize: 20),
+          style: TextStyle(
+              color: Color.fromARGB(255, 255, 255, 255), fontSize: 20),
         ),
         titleTextStyle: TextStyle(
-            color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Montserrat',
+        ),
         actions: [
           PopupMenuButton<String>(
-            color: ui.Color.fromARGB(255, 108, 107, 107),
+            color: Color.fromARGB(255, 255, 255, 255),
             onSelected: (value) {
               if (value == 'deleteMarker') {
                 // Call _deleteMarker method here

@@ -20,8 +20,9 @@ class _HomePageState extends State<HomePage> {
     final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       appBar: AppBar(
-          //title: Text("Signed as ${user!.email}"),
-          ),
+        title: const Text("Güzargahlar"),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: screens[selectedIndex],
       ),
