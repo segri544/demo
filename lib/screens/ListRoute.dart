@@ -53,8 +53,10 @@ class _ListRoutesPageState extends State<ListRoutesPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                TrackPage(documentId: documentId),
+                            builder: (context) => TrackPage(
+                              documentId: documentId,
+                              routeName: "Vito Corleone",
+                            ),
                           ),
                         );
                       },

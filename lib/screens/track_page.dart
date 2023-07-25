@@ -1,3 +1,4 @@
+// import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_app/resources/constants.dart';
@@ -5,23 +6,66 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
+import 'package:location/location.dart';
 
 // import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 
 class TrackPage extends StatefulWidget {
   final String documentId;
+  final String routeName;
 
   // Constructor to receive the document ID
-  TrackPage({required this.documentId});
+  TrackPage({required this.documentId, required this.routeName});
 
   @override
   _TrackPageState createState() => _TrackPageState();
 }
 
 class _TrackPageState extends State<TrackPage> {
+  LocationData? currentLocation;
   bool isMorning = true; // Default is morning
   GoogleMapController? _mapController;
   List<LatLng> _routePoints = [];
+  String appbarName = "";
+  void getCurrentLocation() async {
+    Location location = Location();
+
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    LocationData locationData;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    locationData = await location.getLocation();
+    setState(() {
+      currentLocation = locationData;
+    });
+
+    location.onLocationChanged.listen((newloc) {
+      setState(() {
+        currentLocation = newloc;
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    getCurrentLocation();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +74,7 @@ class _TrackPageState extends State<TrackPage> {
         backgroundColor: Colors.blue, // Custom background color
         elevation: 4, // Add a shadow/elevation to the AppBar
         toolbarHeight: 45, // Increase the AppBar's height for a modern look
-        title: Text(widget.documentId.toUpperCase(),
+        title: Text(widget.routeName.toUpperCase(),
             style: TextStyle(
               color: Colors.white, // Set the title text color
               fontSize: 20, // Increase the font size
@@ -96,7 +140,13 @@ class _TrackPageState extends State<TrackPage> {
                 }
               }
             }
-
+// Get the name based on the selected switch value
+            // final String routeName = isMorning && hasMorningData
+            //     ? data["sabah"]["name"]
+            //     : (!isMorning && hasEveningData
+            //         ? data["akşam"]["name"]
+            //         : "N/A");
+            // appbarName = routeName;
             // Return the Google Maps widget
             return FutureBuilder<Set<Polyline>>(
               future: _createPolylinesSet(),
@@ -107,6 +157,7 @@ class _TrackPageState extends State<TrackPage> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else {
                   return GoogleMap(
+                    //
                     onMapCreated: (controller) {
                       _mapController = controller;
                     },
@@ -118,7 +169,7 @@ class _TrackPageState extends State<TrackPage> {
                       target: _routePoints.isNotEmpty
                           ? _routePoints.first
                           : LatLng(39.915447686012385, 32.772942732056286),
-                      zoom: 14,
+                      zoom: 11,
                     ),
                   );
                 }
@@ -129,7 +180,20 @@ class _TrackPageState extends State<TrackPage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.location_on),
-        onPressed: () {},
+        onPressed: () {
+          if (_mapController != null && currentLocation != null) {
+            _mapController!.animateCamera(
+              CameraUpdate.newCameraPosition(
+                CameraPosition(
+                  target: LatLng(
+                    currentLocation!.latitude!,
+                    currentLocation!.longitude!,
+                  ),
+                ),
+              ),
+            );
+          }
+        },
       ),
     );
   }
@@ -161,6 +225,10 @@ class _TrackPageState extends State<TrackPage> {
             '${_routePoints.last.latitude}, ${_routePoints.last.longitude}',
       ),
     );
+    // Marker livelocation = Marker(
+    //     markerId: MarkerId("Here"),
+    //     position: LatLng(currentLocation!.latitude as double,
+    //         currentLocation!.longitude as double));
 
     List<Marker> markersToShow = [startMarker, endMarker];
 

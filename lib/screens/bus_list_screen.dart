@@ -8,6 +8,7 @@ class BusListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String routeName = "";
     return Scaffold(
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('Maps').snapshots(),
@@ -48,23 +49,24 @@ class BusListScreen extends StatelessWidget {
           return ListView.builder(
             itemCount: uniqueRoutes.length,
             itemBuilder: (context, index) {
-              final routeName = uniqueRoutes.keys.elementAt(index);
-              final routeData = uniqueRoutes[routeName]!;
+              final RouteID = uniqueRoutes.keys.elementAt(index);
+              final routeData = uniqueRoutes[RouteID];
 
               return GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TrackPage(documentId: routeName),
+                      builder: (context) => TrackPage(
+                          documentId: RouteID, routeName: routeData?["name"]),
                     ),
                   );
                 },
                 child: BusCard(
-                  carPlate: routeData['numberPlate'],
-                  routeName: routeData["name"],
-                  driverName: routeData["driverName"],
-                  phoneNumber: routeData['phone'],
+                  carPlate: routeData?['numberPlate'],
+                  routeName: routeData?["name"],
+                  driverName: routeData?["driverName"],
+                  phoneNumber: routeData?['phone'],
                   // You can pass other relevant data from routeData here
                 ),
               );

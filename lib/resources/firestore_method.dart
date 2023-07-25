@@ -63,7 +63,7 @@ class FireStoreMethods {
       Map<String, dynamic> json = {};
       DocumentSnapshot snapshot = await FirebaseFirestore.instance
           .collection(collectionNameForMaps)
-          .doc(name)
+          .doc(_auth.currentUser!.uid)
           .get();
 
       if (morning && !evening) {
@@ -108,12 +108,12 @@ class FireStoreMethods {
       if (snapshot.exists) {
         await FirebaseFirestore.instance
             .collection(collectionNameForMaps)
-            .doc(name)
+            .doc(_auth.currentUser!.uid)
             .update(json);
       } else {
         final docRoute = FirebaseFirestore.instance
             .collection(collectionNameForMaps)
-            .doc(name);
+            .doc(_auth.currentUser!.uid);
 
         await docRoute.set(json);
       }
