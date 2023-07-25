@@ -30,29 +30,8 @@ class _TrackPageState extends State<TrackPage> {
   void getCurrentLocation() async {
     Location location = Location();
 
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-    LocationData locationData;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
-    }
-
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    locationData = await location.getLocation();
-    setState(() {
-      currentLocation = locationData;
+    location.getLocation().then((location) {
+      currentLocation = location;
     });
 
     location.onLocationChanged.listen((newloc) {
@@ -166,8 +145,9 @@ class _TrackPageState extends State<TrackPage> {
                     markers: _createMarkersSet(),
                     polylines: snapshot.data ?? {},
                     initialCameraPosition: CameraPosition(
-                      target: _routePoints.isNotEmpty
-                          ? _routePoints.first
+                      target: currentLocation != null
+                          ? (LatLng(currentLocation?.latitude as double,
+                              currentLocation?.longitude as double))
                           : LatLng(39.915447686012385, 32.772942732056286),
                       zoom: 11,
                     ),
@@ -225,6 +205,7 @@ class _TrackPageState extends State<TrackPage> {
             '${_routePoints.last.latitude}, ${_routePoints.last.longitude}',
       ),
     );
+
     // Marker livelocation = Marker(
     //     markerId: MarkerId("Here"),
     //     position: LatLng(currentLocation!.latitude as double,
