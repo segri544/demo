@@ -119,14 +119,7 @@ class _TrackPageState extends State<TrackPage> {
                 }
               }
             }
-// Get the name based on the selected switch value
-            // final String routeName = isMorning && hasMorningData
-            //     ? data["sabah"]["name"]
-            //     : (!isMorning && hasEveningData
-            //         ? data["akşam"]["name"]
-            //         : "N/A");
-            // appbarName = routeName;
-            // Return the Google Maps widget
+
             return FutureBuilder<Set<Polyline>>(
               future: _createPolylinesSet(),
               builder: (context, snapshot) {
@@ -149,7 +142,7 @@ class _TrackPageState extends State<TrackPage> {
                           ? (LatLng(currentLocation?.latitude as double,
                               currentLocation?.longitude as double))
                           : LatLng(39.915447686012385, 32.772942732056286),
-                      zoom: 11,
+                      zoom: 14,
                     ),
                   );
                 }
@@ -162,16 +155,12 @@ class _TrackPageState extends State<TrackPage> {
         child: Icon(Icons.location_on),
         onPressed: () {
           if (_mapController != null && currentLocation != null) {
-            _mapController!.animateCamera(
-              CameraUpdate.newCameraPosition(
-                CameraPosition(
-                  target: LatLng(
-                    currentLocation!.latitude!,
-                    currentLocation!.longitude!,
-                  ),
-                ),
+            _mapController!.animateCamera(CameraUpdate.newLatLng(
+              LatLng(
+                currentLocation!.latitude as double,
+                currentLocation!.longitude as double,
               ),
-            );
+            ));
           }
         },
       ),
@@ -186,7 +175,8 @@ class _TrackPageState extends State<TrackPage> {
       markerId: MarkerId('startMarker'),
       position: _routePoints.first,
       icon: BitmapDescriptor.defaultMarkerWithHue(
-          isMorning ? BitmapDescriptor.hueOrange : BitmapDescriptor.hueBlue),
+        isMorning ? BitmapDescriptor.hueOrange : BitmapDescriptor.hueBlue,
+      ),
       infoWindow: InfoWindow(
         title: isMorning ? 'Sabah Kalkış' : 'Akşam Varış',
         snippet:
@@ -198,7 +188,8 @@ class _TrackPageState extends State<TrackPage> {
       markerId: MarkerId('endMarker'),
       position: _routePoints.last,
       icon: BitmapDescriptor.defaultMarkerWithHue(
-          isMorning ? BitmapDescriptor.hueOrange : BitmapDescriptor.hueBlue),
+        isMorning ? BitmapDescriptor.hueOrange : BitmapDescriptor.hueBlue,
+      ),
       infoWindow: InfoWindow(
         title: isMorning ? 'Sabah Varış' : 'Akşam Kalkış',
         snippet:
@@ -206,12 +197,20 @@ class _TrackPageState extends State<TrackPage> {
       ),
     );
 
-    // Marker livelocation = Marker(
-    //     markerId: MarkerId("Here"),
-    //     position: LatLng(currentLocation!.latitude as double,
-    //         currentLocation!.longitude as double));
-
     List<Marker> markersToShow = [startMarker, endMarker];
+
+    // Add a marker for the user's current location only if it's available
+    if (currentLocation != null) {
+      markersToShow.add(
+        Marker(
+          markerId: MarkerId("Here"),
+          position: LatLng(
+            currentLocation!.latitude as double,
+            currentLocation!.longitude as double,
+          ),
+        ),
+      );
+    }
 
     return markersToShow.asMap().entries.map((entry) {
       int index = entry.key;
