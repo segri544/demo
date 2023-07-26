@@ -6,8 +6,8 @@ import 'package:demo_app/resources/constants.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:background_location/background_location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 
@@ -28,9 +28,29 @@ class _TrackPageState extends State<TrackPage> {
   List<LatLng> _routePoints = [];
   double lat = 0, long = 0;
   bool isTracking = false;
+
   @override
   void initState() {
     super.initState();
+    _loadIsTrackingState(); // Saklanan isTracking durumunu yükle
+  }
+
+  void _loadIsTrackingState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isTracking = prefs.getBool('isTracking') ?? false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _saveIsTrackingState(); // Durumu kaydet
+    super.dispose();
+  }
+
+  void _saveIsTrackingState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isTracking', isTracking); // isTracking durumunu kaydet
   }
 
   void _updateLocation() {
@@ -38,20 +58,6 @@ class _TrackPageState extends State<TrackPage> {
     BackgroundLocation.getLocationUpdates((location) {
       FireStoreMethods().updateLocationFirestore(
           location.latitude as double, location.longitude as double);
-      // Map<String, dynamic> json = {
-      //   "latitude": location.latitude,
-      //   "longtitude": location.longitude,
-      //   "name": "mdasjdnasdas"
-      // };
-      // final CollectionReference _collectionRef =
-      //     FirebaseFirestore.instance.collection('location');
-      // _mapController!.animateCamera(CameraUpdate.newLatLng(
-      //     LatLng(location.latitude as double, location.longitude as double)));
-      // _collectionRef.doc("user1").update(json).then((_) {
-      //   print("Document updated successfully!");
-      // }).catchError((error) {
-      //   print("Error updating document: $error");
-      // });
       print(location.latitude.toString());
       print(location.longitude.toString());
     });
@@ -70,26 +76,18 @@ class _TrackPageState extends State<TrackPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Colors.blue, // Custom background color
-          elevation: 4, // Add a shadow/elevation to the AppBar
-          toolbarHeight: 45, // Increase the AppBar's height for a modern look
-          title: Text(widget.routeName.toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white, // Set the title text color
-                fontSize: 20, // Increase the font size
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Montserrat', // Use a custom font
-              )),
-          centerTitle: true,
-          bottom: const PreferredSize(
-            preferredSize: Size.fromHeight(40),
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-              ),
-            ),
-          )),
+        backgroundColor: Colors.blue, // Custom background color
+        elevation: 4, // Add a shadow/elevation to the AppBar
+        toolbarHeight: 45, // Increase the AppBar's height for a modern look
+        title: Text(widget.routeName.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white, // Set the title text color
+              fontSize: 20, // Increase the font size
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Montserrat', // Use a custom font
+            )),
+        centerTitle: true,
+      ),
       body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         stream: FirebaseFirestore.instance
             .collection('Maps')
@@ -157,17 +155,40 @@ class _TrackPageState extends State<TrackPage> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.location_on),
-        onPressed: () {
-          if (_mapController != null) {
-            _mapController!.animateCamera(CameraUpdate.newLatLng(
-              LatLng(lat, long),
-            ));
-          }
-        },
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          FloatingActionButton(
+            child: Icon(Icons.location_on),
+            onPressed: () {
+              if (_mapController != null) {
+                _mapController!.animateCamera(CameraUpdate.newLatLng(
+                  LatLng(lat, long),
+                ));
+              }
+            },
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                isMorning = !isMorning;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    isMorning ? "Sabah Rotası" : "Akşam Rotası",
+                  ),
+                ),
+              );
+            },
+            child: Icon(
+              isMorning ? Icons.wb_sunny : Icons.brightness_3,
+            ),
+          ),
+        ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
       bottomNavigationBar: BottomAppBar(
         color: Colors.blue, // Custom background color
         child: ElevatedButton(
