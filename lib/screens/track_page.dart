@@ -74,40 +74,19 @@ class _TrackPageState extends State<TrackPage> {
           elevation: 4, // Add a shadow/elevation to the AppBar
           toolbarHeight: 45, // Increase the AppBar's height for a modern look
           title: Text(widget.routeName.toUpperCase(),
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white, // Set the title text color
                 fontSize: 20, // Increase the font size
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Montserrat', // Use a custom font
               )),
           centerTitle: true,
-          bottom: PreferredSize(
+          bottom: const PreferredSize(
             preferredSize: Size.fromHeight(40),
             child: Align(
               alignment: Alignment.bottomLeft,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: LiteRollingSwitch(
-                  value: isMorning,
-                  textOn: 'Sabah',
-                  textOff: 'Akşam',
-                  width: 360,
-                  textSize: 16,
-                  textOffColor: Colors.white,
-                  textOnColor: Colors.black,
-                  colorOn: Color.fromARGB(255, 239, 231, 5),
-                  colorOff: const Color.fromARGB(255, 13, 64, 90),
-                  iconOn: Icons.wb_sunny,
-                  iconOff: Icons.brightness_3,
-                  onDoubleTap: () {},
-                  onSwipe: () {},
-                  onTap: () {},
-                  onChanged: (bool state) {
-                    setState(() {
-                      isMorning = state;
-                    });
-                  },
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 16),
               ),
             ),
           )),
