@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_app/models/destination_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 class FireStoreMethods {
@@ -22,6 +23,29 @@ class FireStoreMethods {
       });
     } catch (e) {
       print(e);
+    }
+  }
+
+  Future<void> likeDestination(
+      String destinationID, String userID, List likes) async {
+    try {
+      if (likes.contains(userID)) {
+        await _firestore.collection("Maps").doc(destinationID).update({
+          "likes": FieldValue.arrayRemove([userID])
+        });
+        await _firestore.collection("users").doc(userID).update({
+          "likedDestination": FieldValue.arrayRemove([destinationID])
+        });
+      } else {
+        await _firestore.collection("Maps").doc(destinationID).update({
+          "likes": FieldValue.arrayUnion([userID])
+        });
+        await _firestore.collection("users").doc(userID).update({
+          "likedDestination": FieldValue.arrayUnion([destinationID])
+        });
+      }
+    } catch (err) {
+      print(err.toString());
     }
   }
 
@@ -148,5 +172,38 @@ class FireStoreMethods {
     }).catchError((error) {
       print("Error updating document: $error");
     });
+  }
+
+  Future<LatLng?> getLocationFirestore(String documentId) async {
+    try {
+      // Access the Firestore collection and document using the provided documentId
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await FirebaseFirestore.instance
+              .collection('location') // Specify the collection name
+              .doc(documentId) // Specify the document ID
+              .get();
+
+      // Check if the document exists
+      if (snapshot.exists) {
+        // Get the data from the document
+        Map<String, dynamic> data = snapshot.data()!;
+
+        // Extract the latitude and longitude values from the data
+        double latitude = data['latitude'] as double;
+        double longitude = data['longitude'] as double;
+
+        // Create a LatLng object with the retrieved latitude and longitude
+        LatLng locationLatLng = LatLng(latitude, longitude);
+
+        return locationLatLng;
+      } else {
+        // Document not found, return null or handle the case accordingly
+        return null;
+      }
+    } catch (e) {
+      // Handle any errors that may occur during the Firestore read operation
+      print('Error getting location from Firestore: $e');
+      return null;
+    }
   }
 }
