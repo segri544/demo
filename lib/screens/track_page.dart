@@ -1,4 +1,5 @@
 // import 'dart:html';
+import 'package:demo_app/resources/firestore_method.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_app/resources/constants.dart';
@@ -6,7 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
-import 'package:location/location.dart';
+import 'package:background_location/background_location.dart';
 
 // import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 
@@ -22,28 +23,29 @@ class TrackPage extends StatefulWidget {
 }
 
 class _TrackPageState extends State<TrackPage> {
-  LocationData? currentLocation;
   bool isMorning = true; // Default is morning
   GoogleMapController? _mapController;
   List<LatLng> _routePoints = [];
-  String appbarName = "";
-  void getCurrentLocation() async {
-    Location location = Location();
-
-    location.getLocation().then((location) {
-      currentLocation = location;
-    });
-
-    location.onLocationChanged.listen((newloc) {
-      setState(() {
-        currentLocation = newloc;
-      });
-    });
-  }
+  double lat = 0, long = 0;
 
   @override
   void initState() {
-    getCurrentLocation();
+    super.initState();
+  }
+
+  void _updateLocation() {
+    print("update location");
+    BackgroundLocation.getLocationUpdates((location) {
+      FireStoreMethods().updateLocation(location.latitude, location.longitude);
+    });
+  }
+
+  void _startLocation() {
+    BackgroundLocation.startLocationService();
+  }
+
+  void _stopLocation() {
+    BackgroundLocation.stopLocationService();
   }
 
   @override
@@ -138,10 +140,7 @@ class _TrackPageState extends State<TrackPage> {
                     markers: _createMarkersSet(),
                     polylines: snapshot.data ?? {},
                     initialCameraPosition: CameraPosition(
-                      target: currentLocation != null
-                          ? (LatLng(currentLocation?.latitude as double,
-                              currentLocation?.longitude as double))
-                          : LatLng(39.915447686012385, 32.772942732056286),
+                      target: LatLng(39.915447686012385, 32.772942732056286),
                       zoom: 14,
                     ),
                   );
@@ -151,18 +150,36 @@ class _TrackPageState extends State<TrackPage> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.location_on),
-        onPressed: () {
-          if (_mapController != null && currentLocation != null) {
-            _mapController!.animateCamera(CameraUpdate.newLatLng(
-              LatLng(
-                currentLocation!.latitude as double,
-                currentLocation!.longitude as double,
-              ),
-            ));
-          }
-        },
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            child: Icon(Icons.location_on),
+            onPressed: () {
+              if (_mapController != null) {
+                _mapController!.animateCamera(CameraUpdate.newLatLng(
+                  LatLng(lat, long),
+                ));
+              }
+            },
+          ),
+          FloatingActionButton(
+            child: Icon(Icons.location_on),
+            onPressed: () {
+              if (_mapController != null) {
+                _mapController!.animateCamera(CameraUpdate.newLatLng(
+                  LatLng(lat, long),
+                ));
+              }
+            },
+          ),
+          SizedBox(height: 16), // Add some spacing between the buttons
+          FloatingActionButton(
+            child: Icon(Icons.update),
+            onPressed: _updateLocation,
+          ),
+        ],
       ),
     );
   }
@@ -200,17 +217,17 @@ class _TrackPageState extends State<TrackPage> {
     List<Marker> markersToShow = [startMarker, endMarker];
 
     // Add a marker for the user's current location only if it's available
-    if (currentLocation != null) {
-      markersToShow.add(
-        Marker(
-          markerId: MarkerId("Here"),
-          position: LatLng(
-            currentLocation!.latitude as double,
-            currentLocation!.longitude as double,
-          ),
-        ),
-      );
-    }
+    // if (currentLocation != null) {
+    //   markersToShow.add(
+    //     Marker(
+    //       markerId: MarkerId("Here"),
+    //       position: LatLng(
+    //         currentLocation!.latitude as double,
+    //         currentLocation!.longitude as double,
+    //       ),
+    //     ),
+    //   );
+    // }
 
     return markersToShow.asMap().entries.map((entry) {
       int index = entry.key;

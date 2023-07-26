@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_app/models/destination_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:location/location.dart';
 
 class FireStoreMethods {
   String collectionNameForMaps = "Maps";
@@ -128,5 +129,18 @@ class FireStoreMethods {
         .collection(collectionNameForMaps)
         .doc(name)
         .delete();
+  }
+
+  // **************************************************
+  Future updateLocation(lat, long) async {
+    Map<String, dynamic> json = {
+      "latitude": lat,
+      "longtitude": long,
+      // "name": name
+    };
+    await FirebaseFirestore.instance
+        .collection("location")
+        .doc(_auth.currentUser!.uid)
+        .update(json);
   }
 }
