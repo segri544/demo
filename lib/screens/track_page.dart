@@ -27,7 +27,7 @@ class _TrackPageState extends State<TrackPage> {
   GoogleMapController? _mapController;
   List<LatLng> _routePoints = [];
   double lat = 0, long = 0;
-
+  bool isTracking = false;
   @override
   void initState() {
     super.initState();
@@ -70,37 +70,47 @@ class _TrackPageState extends State<TrackPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue, // Custom background color
-        elevation: 4, // Add a shadow/elevation to the AppBar
-        toolbarHeight: 45, // Increase the AppBar's height for a modern look
-        title: Text(widget.routeName.toUpperCase(),
-            style: TextStyle(
-              color: Colors.white, // Set the title text color
-              fontSize: 20, // Increase the font size
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Montserrat', // Use a custom font
-            )),
-        actions: [
-          LiteRollingSwitch(
-            value: isMorning,
-            textOn: 'Sabah',
-            textOff: 'Akşam',
-            width: 100,
-            colorOn: Color.fromARGB(255, 239, 231, 5),
-            colorOff: const Color.fromARGB(255, 13, 64, 90),
-            iconOn: Icons.wb_sunny,
-            iconOff: Icons.brightness_3,
-            onDoubleTap: () {},
-            onSwipe: () {},
-            onTap: () {},
-            onChanged: (bool state) {
-              setState(() {
-                isMorning = state;
-              });
-            },
-          ),
-        ],
-      ),
+          backgroundColor: Colors.blue, // Custom background color
+          elevation: 4, // Add a shadow/elevation to the AppBar
+          toolbarHeight: 45, // Increase the AppBar's height for a modern look
+          title: Text(widget.routeName.toUpperCase(),
+              style: TextStyle(
+                color: Colors.white, // Set the title text color
+                fontSize: 20, // Increase the font size
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Montserrat', // Use a custom font
+              )),
+          centerTitle: true,
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(40),
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: LiteRollingSwitch(
+                  value: isMorning,
+                  textOn: 'Sabah',
+                  textOff: 'Akşam',
+                  width: 360,
+                  textSize: 16,
+                  textOffColor: Colors.white,
+                  textOnColor: Colors.black,
+                  colorOn: Color.fromARGB(255, 239, 231, 5),
+                  colorOff: const Color.fromARGB(255, 13, 64, 90),
+                  iconOn: Icons.wb_sunny,
+                  iconOff: Icons.brightness_3,
+                  onDoubleTap: () {},
+                  onSwipe: () {},
+                  onTap: () {},
+                  onChanged: (bool state) {
+                    setState(() {
+                      isMorning = state;
+                    });
+                  },
+                ),
+              ),
+            ),
+          )),
       body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         stream: FirebaseFirestore.instance
             .collection('Maps')
@@ -168,35 +178,44 @@ class _TrackPageState extends State<TrackPage> {
           }
         },
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            child: Icon(Icons.location_on),
-            onPressed: () {
-              if (_mapController != null) {
-                _mapController!.animateCamera(CameraUpdate.newLatLng(
-                  LatLng(lat, long),
-                ));
-              }
-            },
-          ),
-          FloatingActionButton(
-            child: Icon(Icons.start),
-            onPressed: () {
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.location_on),
+        onPressed: () {
+          if (_mapController != null) {
+            _mapController!.animateCamera(CameraUpdate.newLatLng(
+              LatLng(lat, long),
+            ));
+          }
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.blue, // Custom background color
+        child: ElevatedButton(
+          onPressed: () {
+            if (isTracking) {
+              _stopLocation();
+              print("stopping location button");
+            } else {
               _startLocation();
-              print("start location button");
-            },
+              print("starting location button");
+            }
+            setState(() {
+              isTracking = !isTracking;
+            });
+          },
+          child: Text(
+            isTracking ? "Canlı konum durdur" : "Canlı konum başlat",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
-          SizedBox(height: 16), // Add some spacing between the buttons
-          FloatingActionButton(
-              child: Icon(Icons.update),
-              onPressed: () {
-                _updateLocation();
-                print("update location button");
-              }),
-        ],
+          style: ElevatedButton.styleFrom(
+            primary: isTracking ? Colors.red : Colors.blue,
+
+            onPrimary: Colors.white,
+            // shape: StadiumBorder(),
+            elevation: 0, // Remove the button's elevation
+          ),
+        ),
       ),
     );
   }
