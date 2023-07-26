@@ -69,6 +69,7 @@ class FireStoreMethods {
 
       if (morning && !evening) {
         json = {
+          "destinationId": _auth.currentUser!.uid,
           "sabah": {
             "name": name,
             "driverName": driverName,
@@ -80,6 +81,7 @@ class FireStoreMethods {
       } else if (evening && !morning) {
         json = {
           "akşam": {
+            "destinationId": _auth.currentUser!.uid,
             "name": name,
             "driverName": driverName,
             "phone": phone,
@@ -89,6 +91,7 @@ class FireStoreMethods {
         };
       } else {
         json = {
+          "destinationId": _auth.currentUser!.uid,
           "sabah": {
             "name": name,
             "driverName": driverName,
@@ -132,15 +135,18 @@ class FireStoreMethods {
   }
 
   // **************************************************
-  Future updateLocation(lat, long) async {
+  Future updateLocationFirestore(double lat, double long) async {
+    final CollectionReference _collectionRef =
+        FirebaseFirestore.instance.collection('location');
+    print("${_auth.currentUser!.uid}: updateLocationFirestore");
     Map<String, dynamic> json = {
       "latitude": lat,
       "longtitude": long,
-      // "name": name
     };
-    await FirebaseFirestore.instance
-        .collection("location")
-        .doc(_auth.currentUser!.uid)
-        .update(json);
+    _collectionRef.doc(_auth.currentUser!.uid).set(json).then((_) {
+      print("Document updated successfully!");
+    }).catchError((error) {
+      print("Error updating document: $error");
+    });
   }
 }

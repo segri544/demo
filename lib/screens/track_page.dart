@@ -36,12 +36,30 @@ class _TrackPageState extends State<TrackPage> {
   void _updateLocation() {
     print("update location");
     BackgroundLocation.getLocationUpdates((location) {
-      FireStoreMethods().updateLocation(location.latitude, location.longitude);
+      FireStoreMethods().updateLocationFirestore(
+          location.latitude as double, location.longitude as double);
+      // Map<String, dynamic> json = {
+      //   "latitude": location.latitude,
+      //   "longtitude": location.longitude,
+      //   "name": "mdasjdnasdas"
+      // };
+      // final CollectionReference _collectionRef =
+      //     FirebaseFirestore.instance.collection('location');
+      // _mapController!.animateCamera(CameraUpdate.newLatLng(
+      //     LatLng(location.latitude as double, location.longitude as double)));
+      // _collectionRef.doc("user1").update(json).then((_) {
+      //   print("Document updated successfully!");
+      // }).catchError((error) {
+      //   print("Error updating document: $error");
+      // });
+      print(location.latitude.toString());
+      print(location.longitude.toString());
     });
   }
 
   void _startLocation() {
     BackgroundLocation.startLocationService();
+    _updateLocation();
   }
 
   void _stopLocation() {
@@ -165,20 +183,19 @@ class _TrackPageState extends State<TrackPage> {
             },
           ),
           FloatingActionButton(
-            child: Icon(Icons.location_on),
+            child: Icon(Icons.start),
             onPressed: () {
-              if (_mapController != null) {
-                _mapController!.animateCamera(CameraUpdate.newLatLng(
-                  LatLng(lat, long),
-                ));
-              }
+              _startLocation();
+              print("start location button");
             },
           ),
           SizedBox(height: 16), // Add some spacing between the buttons
           FloatingActionButton(
-            child: Icon(Icons.update),
-            onPressed: _updateLocation,
-          ),
+              child: Icon(Icons.update),
+              onPressed: () {
+                _updateLocation();
+                print("update location button");
+              }),
         ],
       ),
     );
