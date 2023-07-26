@@ -1,5 +1,6 @@
 // import 'dart:html';
 import 'package:demo_app/resources/firestore_method.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_app/resources/constants.dart';
@@ -8,8 +9,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:background_location/background_location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-// import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 
 class TrackPage extends StatefulWidget {
   final String documentId;
@@ -28,6 +27,7 @@ class _TrackPageState extends State<TrackPage> {
   List<LatLng> _routePoints = [];
   double lat = 0, long = 0;
   bool isTracking = false;
+  Set<Marker> _markers = {};
 
   @override
   void initState() {
@@ -58,8 +58,8 @@ class _TrackPageState extends State<TrackPage> {
     BackgroundLocation.getLocationUpdates((location) {
       FireStoreMethods().updateLocationFirestore(
           location.latitude as double, location.longitude as double);
-      print(location.latitude.toString());
-      print(location.longitude.toString());
+      // print(location.latitude.toString());
+      // print(location.longitude.toString());
     });
   }
 
@@ -140,9 +140,12 @@ class _TrackPageState extends State<TrackPage> {
                     onMapCreated: (controller) {
                       _mapController = controller;
                     },
+                    markers:
+                        _markers, // Pass the _markers set to display the markers on the map
+
                     zoomControlsEnabled: false,
                     mapToolbarEnabled: true,
-                    markers: _createMarkersSet(),
+                    // markers: _createMarkersSet(),
                     polylines: snapshot.data ?? {},
                     initialCameraPosition: CameraPosition(
                       target: LatLng(39.915447686012385, 32.772942732056286),
@@ -218,67 +221,6 @@ class _TrackPageState extends State<TrackPage> {
         ),
       ),
     );
-  }
-
-  Set<Marker> _createMarkersSet() {
-    if (_routePoints.isEmpty) return {};
-
-    // Create markers for the start and end points of the route
-    Marker startMarker = Marker(
-      markerId: MarkerId('startMarker'),
-      position: _routePoints.first,
-      icon: BitmapDescriptor.defaultMarkerWithHue(
-        isMorning ? BitmapDescriptor.hueOrange : BitmapDescriptor.hueBlue,
-      ),
-      infoWindow: InfoWindow(
-        title: isMorning ? 'Sabah Kalkış' : 'Akşam Varış',
-        snippet:
-            '${_routePoints.first.latitude}, ${_routePoints.first.longitude}',
-      ),
-    );
-
-    Marker endMarker = Marker(
-      markerId: MarkerId('endMarker'),
-      position: _routePoints.last,
-      icon: BitmapDescriptor.defaultMarkerWithHue(
-        isMorning ? BitmapDescriptor.hueOrange : BitmapDescriptor.hueBlue,
-      ),
-      infoWindow: InfoWindow(
-        title: isMorning ? 'Sabah Varış' : 'Akşam Kalkış',
-        snippet:
-            '${_routePoints.last.latitude}, ${_routePoints.last.longitude}',
-      ),
-    );
-
-    List<Marker> markersToShow = [startMarker, endMarker];
-
-    // Add a marker for the user's current location only if it's available
-    // if (currentLocation != null) {
-    //   markersToShow.add(
-    //     Marker(
-    //       markerId: MarkerId("Here"),
-    //       position: LatLng(
-    //         currentLocation!.latitude as double,
-    //         currentLocation!.longitude as double,
-    //       ),
-    //     ),
-    //   );
-    // }
-
-    return markersToShow.asMap().entries.map((entry) {
-      int index = entry.key;
-      Marker marker = entry.value;
-
-      return Marker(
-        markerId: MarkerId(index.toString()),
-        position: marker.position,
-        icon: marker.icon,
-        infoWindow: InfoWindow(
-          title: marker.infoWindow.title,
-          snippet: marker.infoWindow.snippet,
-        ),
-      );
-    }).toSet();
   }
 
   Future<Set<Polyline>> _createPolylinesSet() async {
@@ -368,5 +310,31 @@ class _TrackPageState extends State<TrackPage> {
       points.add(LatLng(latitude, longitude));
     }
     return points;
+  }
+
+  void _updateMarker() async {
+    // get current location data from firebase as latitude and longtitude
+    print("_updateMarker working...");
+    _markers.clear();
+    print("documentId :${widget.documentId}");
+    LatLng? location =
+        await FireStoreMethods().getLocationFirestore(widget.documentId);
+    if (location != null) {
+      // Use the location (latitude and longitude)
+      double latitude = location.latitude;
+      double longitude = location.longitude;
+
+      Marker currentLocationMarker = Marker(
+        markerId: MarkerId('current_location'),
+        position: LatLng(latitude, longitude),
+        infoWindow: InfoWindow(
+          title: 'Current Location',
+          snippet: 'Lat: $latitude, Lng: $longitude',
+        ),
+      );
+      print("UpdateMarker Lat: $latitude\nUpdateMarker long: $longitude");
+      _markers.add(currentLocationMarker);
+    }
+    setState(() {});
   }
 }

@@ -8,7 +8,6 @@ class BusListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String routeName = "";
     return Scaffold(
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('Maps').snapshots(),
@@ -24,9 +23,7 @@ class BusListScreen extends StatelessWidget {
               child: CircularProgressIndicator(),
             );
           }
-
           final routes = snapshot.data!.docs;
-
           final uniqueRoutes = <String, Map<String, dynamic>>{};
 
           for (final route in routes) {
@@ -63,12 +60,8 @@ class BusListScreen extends StatelessWidget {
                   );
                 },
                 child: BusCard(
-                  carPlate: routeData?['numberPlate'],
-                  routeName: routeData?["name"],
-                  driverName: routeData?["driverName"],
-                  phoneNumber: routeData?['phone'],
-                  // You can pass other relevant data from routeData here
-                ),
+                    snap: snapshot.data!.docs[index].data()
+                        as Map<String, dynamic>),
               );
             },
           );
