@@ -51,6 +51,7 @@ class _TrackPageState extends State<TrackPage> {
         .get();
     lat = userSnap["latitude"] as double;
     long = userSnap["longtitude"] as double;
+    _updateMarker(LatLng(lat, long));
     print("lat: long: $lat $long");
     // setState(() {});
   }
@@ -97,7 +98,7 @@ class _TrackPageState extends State<TrackPage> {
   void _updateMarker(LatLng newPosition) {
     setState(() {
       _myMarker = Marker(
-        markerId: MarkerId('myMarker'),
+        markerId: MarkerId(widget.routeName),
         position: newPosition,
         // Diğer özellikler, örneğin icon, title, vs. burada belirtilebilir
       );
@@ -111,8 +112,6 @@ class _TrackPageState extends State<TrackPage> {
     BackgroundLocation.getLocationUpdates((location) {
       FireStoreMethods().updateLocationFirestore(
           location.latitude as double, location.longitude as double);
-      _updateMarker(
-          LatLng(location.latitude as double, location.longitude as double));
 
       // print(location.latitude.toString());
       // print(location.longitude.toString());
@@ -153,7 +152,14 @@ class _TrackPageState extends State<TrackPage> {
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData || !snapshot.data!.exists) {
-              return Center(child: Text('Document not found'));
+              return Center(
+                  child: Text(
+                'Yükleniyor...',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30,
+                ),
+              ));
             } else {
               final data = snapshot.data!.data()!;
 
@@ -167,7 +173,9 @@ class _TrackPageState extends State<TrackPage> {
                   : (!isMorning && hasEveningData
                       ? data["akşam"]!["locations"]
                       : null);
-
+              // print(isMorning);
+              // print(locations);
+              // print(hasEveningData);
               // Clear the route points
               _routePoints.clear();
 
@@ -197,6 +205,7 @@ class _TrackPageState extends State<TrackPage> {
                       polylines: snapshot.data ?? {},
                       initialCameraPosition: CameraPosition(
                         target: LatLng(lat, long),
+                        zoom: 15,
                       ),
                       markers: _myMarker != null
                           ? Set<Marker>.of([_myMarker!])
@@ -230,6 +239,7 @@ class _TrackPageState extends State<TrackPage> {
                   SnackBar(
                     content: Text(
                       isMorning ? "Sabah Rotası" : "Akşam Rotası",
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 );
