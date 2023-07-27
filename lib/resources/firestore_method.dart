@@ -10,6 +10,11 @@ class FireStoreMethods {
   String collectionNameForMaps = "Maps";
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  var userData = {};
+
+  void getData() async {
+    //get user data
+  }
 
   Future<void> updateUser(String name, String lastName, String? address,
       String email, String? carPlate) async {
@@ -78,12 +83,19 @@ class FireStoreMethods {
 
   Future<void> uploadRoute(
       String name,
-      String driverName,
+      // String driverName,
       String phone,
-      String NumberPlate,
+      // String NumberPlate,
       List<dynamic> konum,
       bool morning,
       bool evening) async {
+    var userSnap = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+
+    userData = userSnap.data()!;
+
     try {
       Map<String, dynamic> json = {};
       DocumentSnapshot snapshot = await FirebaseFirestore.instance
@@ -96,9 +108,9 @@ class FireStoreMethods {
           "destinationId": _auth.currentUser!.uid,
           "sabah": {
             "name": name,
-            "driverName": driverName,
+            "driverName": "${userData["name"]} ${userData["lastName"]}",
             "phone": phone,
-            "numberPlate": NumberPlate,
+            "numberPlate": userData["vehiclePlate"],
             "locations": konum,
           }
         };
@@ -107,9 +119,9 @@ class FireStoreMethods {
           "akşam": {
             "destinationId": _auth.currentUser!.uid,
             "name": name,
-            "driverName": driverName,
+            "driverName": "${userData["name"]} ${userData["lastName"]}",
             "phone": phone,
-            "numberPlate": NumberPlate,
+            "numberPlate": userData["vehiclePlate"],
             "locations": konum,
           }
         };
@@ -118,16 +130,16 @@ class FireStoreMethods {
           "destinationId": _auth.currentUser!.uid,
           "sabah": {
             "name": name,
-            "driverName": driverName,
+            "driverName": "${userData["name"]} ${userData["lastName"]}",
             "phone": phone,
-            "numberPlate": NumberPlate,
+            "numberPlate": userData["vehiclePlate"],
             "locations": konum,
           },
           "akşam": {
             "name": name,
-            "driverName": driverName,
+            "driverName": "${userData["name"]} ${userData["lastName"]}",
             "phone": phone,
-            "numberPlate": NumberPlate,
+            "numberPlate": userData["vehiclePlate"],
             "locations": konum,
           }
         };
@@ -208,8 +220,7 @@ class FireStoreMethods {
   }
 
   //*****************************************************************
-  Future<String> getDriverNameByRouteName(
-      String docId, String routeName) async {
+  Future<String> getDriverIdByRouteName(String docId, String routeName) async {
     try {
       final firebase = FirebaseFirestore.instance;
       final documentRef = firebase.collection("Maps").doc(docId);
@@ -217,29 +228,19 @@ class FireStoreMethods {
 
       if (documentSnapshot.exists) {
         final data = documentSnapshot.data();
-        // print("docSNAPPPPP: \n\n $data");
-        // print(data?["sabah"]["driverName"]);
-        // Check if "name" exists under "sabah" field
-        if (data!.containsKey("sabah") && data["sabah"]["name"] == routeName) {
-          final driverName = data["sabah"]["driverName"];
-          return driverName;
-        }
+        final driverId = data!["destinationId"] as String;
+        print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS $driverId");
 
-        // Check if "name" exists under "akşam" field
-        if (data!.containsKey("akşam") && data["akşam"]["name"] == routeName) {
-          final driverName = data["akşam"]["driverName"];
-          print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
-          return driverName;
-        }
-
-        // Return if "name" is not found under either "sabah" or "akşam"
-        return "No matching documents found.";
+        return driverId;
       } else {
-        return "Document with the specified docId does not exist.";
+        return "null";
       }
     } catch (e) {
       print("Error getting document: $e");
       return "null"; // You can handle the error as you like or return an error message
     }
   }
+
+  // ROUTE NAME E GÖRE USERSTAN ÇÖFÖRÜN İD AL!!!!!!!!!!!!
+  //get Driverid using name
 }

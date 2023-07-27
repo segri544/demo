@@ -200,26 +200,11 @@ class CreateRoutePageState extends State<CreateRoutePage> {
                   ),
                   TextField(
                     onChanged: (value) {
-                      driverName = value;
-                    },
-                    decoration: const InputDecoration(
-                      hintText: "Şöför İsmi",
-                    ),
-                  ),
-                  TextField(
-                    onChanged: (value) {
                       PhoneNumber = value;
                     },
                     decoration: const InputDecoration(
-                      hintText: "Telefon Numarası",
+                      hintText: "Telefon Numaranız",
                     ),
-                  ),
-                  TextField(
-                    // New TextField for the vehicle plate
-                    onChanged: (value) {
-                      vehiclePlate = value;
-                    },
-                    decoration: const InputDecoration(hintText: "Araç Plakası"),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -279,9 +264,7 @@ class CreateRoutePageState extends State<CreateRoutePage> {
 
                     FireStoreMethods().uploadRoute(
                         routeName.toLowerCase(),
-                        driverName,
                         PhoneNumber,
-                        vehiclePlate.toLowerCase(),
                         konum,
                         isMorningSelected,
                         isEveningSelected);

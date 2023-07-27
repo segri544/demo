@@ -28,17 +28,26 @@ class _TrackPageState extends State<TrackPage> {
   double lat = 0, long = 0;
   bool isTracking = false;
   var userData = {};
+  String driverId = "";
 
-  void ToGetLocation() {
-    // documment id git -> şöför adını al
-    // users a git şöför adına ait id al
-    // locationa git oradan ilgili id ait konum bilgilerini çek
-    FireStoreMethods()
-        .getDriverNameByRouteName(widget.documentId, widget.routeName);
-    print("getDriverNameByRouteName DENEME:");
+  Future<void> ToGetLocation() async {
+    driverId = await FireStoreMethods()
+        .getDriverIdByRouteName(widget.documentId, widget.routeName);
   }
 
-  void getData() async {
+  void getLocation() async {
+    var userSnap = await FirebaseFirestore.instance
+        .collection("location")
+        .doc(driverId = await FireStoreMethods()
+            .getDriverIdByRouteName(widget.documentId, widget.routeName))
+        .get();
+    lat = userSnap["latitude"] as double;
+    long = userSnap["longtitude"] as double;
+    print("lat: long: $lat $long");
+    // setState(() {});
+  }
+
+  void getUserData() async {
     //get user data
     var userSnap = await FirebaseFirestore.instance
         .collection("users")
@@ -52,9 +61,10 @@ class _TrackPageState extends State<TrackPage> {
   @override
   void initState() {
     super.initState();
-    getData();
+    getUserData();
     _loadIsTrackingState(); // Saklanan isTracking durumunu yükle
     ToGetLocation();
+    getLocation();
   }
 
   void _loadIsTrackingState() async {
