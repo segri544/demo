@@ -212,23 +212,34 @@ class FireStoreMethods {
       String docId, String routeName) async {
     try {
       final firebase = FirebaseFirestore.instance;
-      final collectionRef = firebase.collection("Maps");
-      final querySnapshot = await collectionRef
-          .where("name", isEqualTo: routeName)
-          .limit(1)
-          .get();
+      final documentRef = firebase.collection("Maps").doc(docId);
+      final documentSnapshot = await documentRef.get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        final driverName = querySnapshot.docs.first["driverName"] as String;
-        print(
-            "\n************************************\n\n\nSürücü: $driverName\n\n\n\n************************************");
-        return driverName;
-      } else {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data();
+        // print("docSNAPPPPP: \n\n $data");
+        // print(data?["sabah"]["driverName"]);
+        // Check if "name" exists under "sabah" field
+        if (data!.containsKey("sabah") && data["sabah"]["name"] == routeName) {
+          final driverName = data["sabah"]["driverName"];
+          return driverName;
+        }
+
+        // Check if "name" exists under "akşam" field
+        if (data!.containsKey("akşam") && data["akşam"]["name"] == routeName) {
+          final driverName = data["akşam"]["driverName"];
+          print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
+          return driverName;
+        }
+
+        // Return if "name" is not found under either "sabah" or "akşam"
         return "No matching documents found.";
+      } else {
+        return "Document with the specified docId does not exist.";
       }
     } catch (e) {
-      print("Error getting documents: $e");
-      return "error getDriverNameByRouteName!"; // You can handle the error as you like or return an error message
+      print("Error getting document: $e");
+      return "null"; // You can handle the error as you like or return an error message
     }
   }
 }

@@ -6,12 +6,14 @@ class User {
   final String position;
   final String? address;
   final String? vehiclePlate;
+  final List? likedDestinations;
 
   const User(
       {this.id,
       this.address,
       this.vehiclePlate,
       required this.name,
+      this.likedDestinations,
       required this.lastName,
       required this.email,
       required this.position});

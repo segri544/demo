@@ -1,19 +1,17 @@
+import 'package:demo_app/resources/firestore_method.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class BusCard extends StatelessWidget {
-  final String carPlate;
-  final String routeName;
-  final String driverName;
-  final String phoneNumber;
+class BusCard extends StatefulWidget {
+  final Map<String, dynamic> snap;
 
-  const BusCard(
-      {Key? key,
-      required this.carPlate,
-      required this.routeName,
-      required this.driverName,
-      required this.phoneNumber})
-      : super(key: key);
+  const BusCard({Key? key, required this.snap}) : super(key: key);
 
+  @override
+  State<BusCard> createState() => _BusCardState();
+}
+
+class _BusCardState extends State<BusCard> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -37,7 +35,7 @@ class BusCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Text(
-                      carPlate,
+                      widget.snap["sabah"]["numberPlate"],
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 25,
@@ -48,17 +46,18 @@ class BusCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          routeName.toUpperCase(),
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          widget.snap["sabah"]["name"].toUpperCase(),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         )
                       ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Şöför : ${driverName.toUpperCase()}"),
-                        SizedBox(width: 15),
-                        Text("Tel : ${phoneNumber}"),
+                        Text(
+                            "Şöför : ${widget.snap["sabah"]["driverName"].toUpperCase()}"),
+                        const SizedBox(width: 15),
+                        Text("Tel : ${widget.snap["sabah"]["phone"]}"),
                       ],
                     ),
                   ],
@@ -66,9 +65,20 @@ class BusCard extends StatelessWidget {
                 const VerticalDivider(
                   thickness: 2,
                 ),
-                const Icon(
-                  Icons.favorite_border,
-                  color: Colors.pink,
+                IconButton(
+                  onPressed: () async {
+                    await FireStoreMethods().likeDestination(
+                        widget.snap["destinationId"],
+                        FirebaseAuth.instance.currentUser!.uid,
+                        widget.snap["likes"]);
+                  },
+                  icon: Icon(
+                    widget.snap["likes"]
+                            .contains(FirebaseAuth.instance.currentUser?.uid)
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                    color: Colors.red,
+                  ),
                 ),
               ],
             ),

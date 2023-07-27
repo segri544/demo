@@ -23,7 +23,7 @@ class BusListScreen extends StatelessWidget {
             );
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           }
@@ -62,11 +62,8 @@ class BusListScreen extends StatelessWidget {
                   );
                 },
                 child: BusCard(
-                  carPlate: routeData?['numberPlate'],
-                  routeName: routeData?["name"],
-                  driverName: routeData?["driverName"],
-                  phoneNumber: routeData?['phone'],
-                  // You can pass other relevant data from routeData here
+                  snap:
+                      snapshot.data!.docs[index].data() as Map<String, dynamic>,
                 ),
               );
             },
