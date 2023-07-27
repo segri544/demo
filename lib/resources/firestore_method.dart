@@ -240,7 +240,4 @@ class FireStoreMethods {
       return "null"; // You can handle the error as you like or return an error message
     }
   }
-
-  // ROUTE NAME E GÖRE USERSTAN ÇÖFÖRÜN İD AL!!!!!!!!!!!!
-  //get Driverid using name
 }

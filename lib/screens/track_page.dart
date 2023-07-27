@@ -30,6 +30,7 @@ class _TrackPageState extends State<TrackPage> {
   bool isTracking = false;
   var userData = {};
   String driverId = "";
+  Marker? _myMarker;
 
   Future<void> ToGetLocation() async {
     driverId = await FireStoreMethods()
@@ -92,11 +93,27 @@ class _TrackPageState extends State<TrackPage> {
     prefs.setBool('isTracking', isTracking); // isTracking durumunu kaydet
   }
 
+// _myMarker'ı güncelleyecek fonksiyon
+  void _updateMarker(LatLng newPosition) {
+    setState(() {
+      _myMarker = Marker(
+        markerId: MarkerId('myMarker'),
+        position: newPosition,
+        // Diğer özellikler, örneğin icon, title, vs. burada belirtilebilir
+      );
+      // _mapController?.animateCamera(
+      //     CameraUpdate.newCameraPosition(CameraPosition(target: newPosition)));
+    });
+  }
+
   void _updateLocation() {
     print("update location");
     BackgroundLocation.getLocationUpdates((location) {
       FireStoreMethods().updateLocationFirestore(
           location.latitude as double, location.longitude as double);
+      _updateMarker(
+          LatLng(location.latitude as double, location.longitude as double));
+
       // print(location.latitude.toString());
       // print(location.longitude.toString());
     });
@@ -133,9 +150,7 @@ class _TrackPageState extends State<TrackPage> {
               .doc(widget.documentId)
               .snapshots(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
+            if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData || !snapshot.data!.exists) {
               return Center(child: Text('Document not found'));
@@ -181,9 +196,11 @@ class _TrackPageState extends State<TrackPage> {
                       // markers: _createMarkersSet(),
                       polylines: snapshot.data ?? {},
                       initialCameraPosition: CameraPosition(
-                        target: LatLng(39.915447686012385, 32.772942732056286),
-                        zoom: 14,
+                        target: LatLng(lat, long),
                       ),
+                      markers: _myMarker != null
+                          ? Set<Marker>.of([_myMarker!])
+                          : Set<Marker>(),
                     );
                   }
                 },
