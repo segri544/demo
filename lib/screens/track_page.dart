@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:background_location/background_location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
 class TrackPage extends StatefulWidget {
   final String documentId;
@@ -33,6 +34,12 @@ class _TrackPageState extends State<TrackPage> {
   Future<void> ToGetLocation() async {
     driverId = await FireStoreMethods()
         .getDriverIdByRouteName(widget.documentId, widget.routeName);
+  }
+
+  void startTimerForTrackLocation() {
+    Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      getLocation(); // Call your function here
+    });
   }
 
   void getLocation() async {
@@ -64,7 +71,7 @@ class _TrackPageState extends State<TrackPage> {
     getUserData();
     _loadIsTrackingState(); // Saklanan isTracking durumunu yükle
     ToGetLocation();
-    getLocation();
+    startTimerForTrackLocation();
   }
 
   void _loadIsTrackingState() async {
@@ -158,17 +165,13 @@ class _TrackPageState extends State<TrackPage> {
                   }
                 }
               }
-
               return FutureBuilder<Set<Polyline>>(
                 future: _createPolylinesSet(),
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
+                  if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else {
                     return GoogleMap(
-                      //
                       onMapCreated: (controller) {
                         _mapController = controller;
                       },
