@@ -27,11 +27,26 @@ class _TrackPageState extends State<TrackPage> {
   List<LatLng> _routePoints = [];
   double lat = 0, long = 0;
   bool isTracking = false;
-  Set<Marker> _markers = {};
+  var userData = {};
+  bool isLoading = true;
+
+  void getData() async {
+    //get user data
+    var userSnap = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+
+    userData = userSnap.data()!;
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    getData();
     _loadIsTrackingState(); // Saklanan isTracking durumunu yükle
   }
 
@@ -75,152 +90,156 @@ class _TrackPageState extends State<TrackPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue, // Custom background color
-        elevation: 4, // Add a shadow/elevation to the AppBar
-        toolbarHeight: 45, // Increase the AppBar's height for a modern look
-        title: Text(widget.routeName.toUpperCase(),
-            style: const TextStyle(
-              color: Colors.white, // Set the title text color
-              fontSize: 20, // Increase the font size
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Montserrat', // Use a custom font
-            )),
-        centerTitle: true,
-      ),
-      body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance
-            .collection('Maps')
-            .doc(widget.documentId)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || !snapshot.data!.exists) {
-            return Center(child: Text('Document not found'));
-          } else {
-            final data = snapshot.data!.data()!;
+        appBar: AppBar(
+          backgroundColor: Colors.blue, // Custom background color
+          elevation: 4, // Add a shadow/elevation to the AppBar
+          toolbarHeight: 45, // Increase the AppBar's height for a modern look
+          title: Text(widget.routeName.toUpperCase(),
+              style: const TextStyle(
+                color: Colors.white, // Set the title text color
+                fontSize: 20, // Increase the font size
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Montserrat', // Use a custom font
+              )),
+          centerTitle: true,
+        ),
+        body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance
+              .collection('Maps')
+              .doc(widget.documentId)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || !snapshot.data!.exists) {
+              return Center(child: Text('Document not found'));
+            } else {
+              final data = snapshot.data!.data()!;
 
-            // Determine whether "sabah" and "akşam" data are present
-            final bool hasMorningData = data.containsKey("sabah");
-            final bool hasEveningData = data.containsKey("akşam");
+              // Determine whether "sabah" and "akşam" data are present
+              final bool hasMorningData = data.containsKey("sabah");
+              final bool hasEveningData = data.containsKey("akşam");
 
-            // Get the locations based on the selected switch value
-            final locations = isMorning && hasMorningData
-                ? data["sabah"]!["locations"]
-                : (!isMorning && hasEveningData
-                    ? data["akşam"]!["locations"]
-                    : null);
+              // Get the locations based on the selected switch value
+              final locations = isMorning && hasMorningData
+                  ? data["sabah"]!["locations"]
+                  : (!isMorning && hasEveningData
+                      ? data["akşam"]!["locations"]
+                      : null);
 
-            // Clear the route points
-            _routePoints.clear();
+              // Clear the route points
+              _routePoints.clear();
 
-            // Add the route points
-            if (locations != null) {
-              for (var location in locations) {
-                if (location is GeoPoint) {
-                  _routePoints
-                      .add(LatLng(location.latitude, location.longitude));
+              // Add the route points
+              if (locations != null) {
+                for (var location in locations) {
+                  if (location is GeoPoint) {
+                    _routePoints
+                        .add(LatLng(location.latitude, location.longitude));
+                  }
                 }
               }
+
+              return FutureBuilder<Set<Polyline>>(
+                future: _createPolylinesSet(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else {
+                    return GoogleMap(
+                      //
+                      onMapCreated: (controller) {
+                        _mapController = controller;
+                      },
+
+                      zoomControlsEnabled: false,
+                      mapToolbarEnabled: true,
+                      // markers: _createMarkersSet(),
+                      polylines: snapshot.data ?? {},
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(39.915447686012385, 32.772942732056286),
+                        zoom: 14,
+                      ),
+                    );
+                  }
+                },
+              );
             }
-
-            return FutureBuilder<Set<Polyline>>(
-              future: _createPolylinesSet(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else {
-                  return GoogleMap(
-                    //
-                    onMapCreated: (controller) {
-                      _mapController = controller;
-                    },
-                    markers:
-                        _markers, // Pass the _markers set to display the markers on the map
-
-                    zoomControlsEnabled: false,
-                    mapToolbarEnabled: true,
-                    // markers: _createMarkersSet(),
-                    polylines: snapshot.data ?? {},
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(39.915447686012385, 32.772942732056286),
-                      zoom: 14,
-                    ),
-                  );
+          },
+        ),
+        floatingActionButton: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            FloatingActionButton(
+              child: Icon(Icons.location_on),
+              onPressed: () {
+                if (_mapController != null) {
+                  _mapController!.animateCamera(CameraUpdate.newLatLng(
+                    LatLng(lat, long),
+                  ));
                 }
               },
-            );
-          }
-        },
-      ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          FloatingActionButton(
-            child: Icon(Icons.location_on),
-            onPressed: () {
-              if (_mapController != null) {
-                _mapController!.animateCamera(CameraUpdate.newLatLng(
-                  LatLng(lat, long),
-                ));
-              }
-            },
-          ),
-          FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                isMorning = !isMorning;
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    isMorning ? "Sabah Rotası" : "Akşam Rotası",
-                  ),
-                ),
-              );
-            },
-            child: Icon(
-              isMorning ? Icons.wb_sunny : Icons.brightness_3,
             ),
-          ),
-        ],
-      ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.blue, // Custom background color
-        child: ElevatedButton(
-          onPressed: () {
-            if (isTracking) {
-              _stopLocation();
-              print("stopping location button");
-            } else {
-              _startLocation();
-              print("starting location button");
-            }
-            setState(() {
-              isTracking = !isTracking;
-            });
-          },
-          child: Text(
-            isTracking ? "Canlı konum durdur" : "Canlı konum başlat",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          style: ElevatedButton.styleFrom(
-            primary: isTracking ? Colors.red : Colors.blue,
-
-            onPrimary: Colors.white,
-            // shape: StadiumBorder(),
-            elevation: 0, // Remove the button's elevation
-          ),
+            FloatingActionButton(
+              onPressed: () {
+                setState(() {
+                  isMorning = !isMorning;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      isMorning ? "Sabah Rotası" : "Akşam Rotası",
+                    ),
+                  ),
+                );
+              },
+              child: Icon(
+                isMorning ? Icons.wb_sunny : Icons.brightness_3,
+              ),
+            ),
+          ],
         ),
-      ),
-    );
+        // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
+        bottomNavigationBar: isLoading
+            ? (userData["position"] == "Şöför"
+                ? BottomAppBar(
+                    color: Colors.blue, // Custom background color
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (isTracking) {
+                          _stopLocation();
+                          print("stopping location button");
+                        } else {
+                          _startLocation();
+                          print("starting location button");
+                        }
+                        setState(() {
+                          isTracking = !isTracking;
+                        });
+                      },
+                      child: Text(
+                        isTracking
+                            ? "Canlı konum durdur"
+                            : "Canlı konum başlat",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        primary: isTracking ? Colors.red : Colors.blue,
+
+                        onPrimary: Colors.white,
+                        // shape: StadiumBorder(),
+                        elevation: 0, // Remove the button's elevation
+                      ),
+                    ),
+                  )
+                : null)
+            : null);
   }
 
   Future<Set<Polyline>> _createPolylinesSet() async {
@@ -310,31 +329,5 @@ class _TrackPageState extends State<TrackPage> {
       points.add(LatLng(latitude, longitude));
     }
     return points;
-  }
-
-  void _updateMarker() async {
-    // get current location data from firebase as latitude and longtitude
-    print("_updateMarker working...");
-    _markers.clear();
-    print("documentId :${widget.documentId}");
-    LatLng? location =
-        await FireStoreMethods().getLocationFirestore(widget.documentId);
-    if (location != null) {
-      // Use the location (latitude and longitude)
-      double latitude = location.latitude;
-      double longitude = location.longitude;
-
-      Marker currentLocationMarker = Marker(
-        markerId: MarkerId('current_location'),
-        position: LatLng(latitude, longitude),
-        infoWindow: InfoWindow(
-          title: 'Current Location',
-          snippet: 'Lat: $latitude, Lng: $longitude',
-        ),
-      );
-      print("UpdateMarker Lat: $latitude\nUpdateMarker long: $longitude");
-      _markers.add(currentLocationMarker);
-    }
-    setState(() {});
   }
 }
