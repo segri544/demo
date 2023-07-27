@@ -30,6 +30,11 @@ class _TrackPageState extends State<TrackPage> {
   var userData = {};
   bool isLoading = true;
 
+  void ToGetLocation() {
+    // documment id git -> şöför adını al
+    // users a git şöför adına ait id al
+    // locationa git oradan ilgili id ait konum bilgilerini çek
+  }
   void getData() async {
     //get user data
     var userSnap = await FirebaseFirestore.instance
@@ -38,9 +43,7 @@ class _TrackPageState extends State<TrackPage> {
         .get();
 
     userData = userSnap.data()!;
-    setState(() {
-      isLoading = false;
-    });
+    setState(() {});
   }
 
   @override
@@ -48,6 +51,9 @@ class _TrackPageState extends State<TrackPage> {
     super.initState();
     getData();
     _loadIsTrackingState(); // Saklanan isTracking durumunu yükle
+    // Future A = FireStoreMethods()
+    //     .getDriverNameByRouteName(widget.documentId, widget.routeName);
+    // print("A: $A");
   }
 
   void _loadIsTrackingState() async {
@@ -205,41 +211,36 @@ class _TrackPageState extends State<TrackPage> {
         ),
         // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
-        bottomNavigationBar: isLoading
-            ? (userData["position"] == "Şöför"
-                ? BottomAppBar(
-                    color: Colors.blue, // Custom background color
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (isTracking) {
-                          _stopLocation();
-                          print("stopping location button");
-                        } else {
-                          _startLocation();
-                          print("starting location button");
-                        }
-                        setState(() {
-                          isTracking = !isTracking;
-                        });
-                      },
-                      child: Text(
-                        isTracking
-                            ? "Canlı konum durdur"
-                            : "Canlı konum başlat",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        primary: isTracking ? Colors.red : Colors.blue,
+        bottomNavigationBar: (userData["position"] == "Şöför"
+            ? BottomAppBar(
+                color: Colors.blue, // Custom background color
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (isTracking) {
+                      _stopLocation();
+                      print("stopping location button");
+                    } else {
+                      _startLocation();
+                      print("starting location button");
+                    }
+                    setState(() {
+                      isTracking = !isTracking;
+                    });
+                  },
+                  child: Text(
+                    isTracking ? "Canlı konum durdur" : "Canlı konum başlat",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    primary: isTracking ? Colors.red : Colors.blue,
 
-                        onPrimary: Colors.white,
-                        // shape: StadiumBorder(),
-                        elevation: 0, // Remove the button's elevation
-                      ),
-                    ),
-                  )
-                : null)
-            : null);
+                    onPrimary: Colors.white,
+                    // shape: StadiumBorder(),
+                    elevation: 0, // Remove the button's elevation
+                  ),
+                ),
+              )
+            : null));
   }
 
   Future<Set<Polyline>> _createPolylinesSet() async {

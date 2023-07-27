@@ -206,4 +206,29 @@ class FireStoreMethods {
       return null;
     }
   }
+
+  //*****************************************************************
+  Future<String> getDriverNameByRouteName(
+      String docId, String routeName) async {
+    try {
+      final firebase = FirebaseFirestore.instance;
+      final collectionRef = firebase.collection("Maps");
+      final querySnapshot = await collectionRef
+          .where("name", isEqualTo: routeName)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final driverName = querySnapshot.docs.first["driverName"] as String;
+        print(
+            "\n************************************\n\n\nSürücü: $driverName\n\n\n\n************************************");
+        return driverName;
+      } else {
+        return "No matching documents found.";
+      }
+    } catch (e) {
+      print("Error getting documents: $e");
+      return "error getDriverNameByRouteName!"; // You can handle the error as you like or return an error message
+    }
+  }
 }
