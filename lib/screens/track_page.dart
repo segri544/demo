@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:background_location/background_location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
+import 'package:geolocator/geolocator.dart';
 
 class TrackPage extends StatefulWidget {
   final String documentId;
@@ -31,6 +32,7 @@ class _TrackPageState extends State<TrackPage> {
   var userData = {};
   String driverId = "";
   Marker? _myMarker;
+  bool serviceEnabled = false;
 
   Future<void> ToGetLocation() async {
     driverId = await FireStoreMethods()
@@ -118,7 +120,29 @@ class _TrackPageState extends State<TrackPage> {
     });
   }
 
-  void _startLocation() {
+  void _startLocation() async {
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Konum servisi kapalı, kullanıcıya uyarı verelim
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Konum Servisi Kapalı'),
+            content: Text('Lütfen cihazınızın konum servisini açın.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Tamam'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
     BackgroundLocation.startLocationService();
     _updateLocation();
   }
@@ -269,11 +293,17 @@ class _TrackPageState extends State<TrackPage> {
                     });
                   },
                   child: Text(
-                    isTracking ? "Canlı konum durdur" : "Canlı konum başlat",
+                    serviceEnabled
+                        ? (isTracking
+                            ? "Canlı konum durdur"
+                            : "Canlı konum başlat")
+                        : "Canlı konum başlat",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   style: ElevatedButton.styleFrom(
-                    primary: isTracking ? Colors.red : Colors.blue,
+                    primary: serviceEnabled
+                        ? (isTracking ? Colors.red : Colors.blue)
+                        : Colors.blue,
 
                     onPrimary: Colors.white,
                     // shape: StadiumBorder(),
