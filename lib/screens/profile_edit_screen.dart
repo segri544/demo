@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_app/components/button_large.dart';
 import 'package:demo_app/components/my_textfield.dart';
 import 'package:demo_app/resources/firestore_method.dart';
-import 'package:demo_app/screens/profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

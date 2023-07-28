@@ -174,7 +174,7 @@ class FireStoreMethods {
   Future updateLocationFirestore(double lat, double long) async {
     final CollectionReference _collectionRef =
         FirebaseFirestore.instance.collection('location');
-    print("${_auth.currentUser!.uid}: updateLocationFirestore");
+    // print("${_auth.currentUser!.uid}: updateLocationFirestore");
     Map<String, dynamic> json = {
       "latitude": lat,
       "longtitude": long,
@@ -229,7 +229,7 @@ class FireStoreMethods {
       if (documentSnapshot.exists) {
         final data = documentSnapshot.data();
         final driverId = data!["destinationId"] as String;
-        print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS $driverId");
+        // print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS $driverId");
 
         return driverId;
       } else {

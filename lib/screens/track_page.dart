@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_app/resources/constants.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:background_location/background_location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
@@ -34,6 +32,7 @@ class _TrackPageState extends State<TrackPage> {
   String driverId = "";
   Marker? _myMarker;
   bool serviceEnabled = false;
+  Timer? locationTimer;
 
   Future<void> ToGetLocation() async {
     driverId = await FireStoreMethods()
@@ -41,7 +40,7 @@ class _TrackPageState extends State<TrackPage> {
   }
 
   void startTimerForTrackLocation() {
-    Timer.periodic(Duration(seconds: 1), (Timer timer) {
+    locationTimer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
       getLocation(); // Call your function here
     });
   }
@@ -115,9 +114,6 @@ class _TrackPageState extends State<TrackPage> {
     BackgroundLocation.getLocationUpdates((location) {
       FireStoreMethods().updateLocationFirestore(
           location.latitude as double, location.longitude as double);
-
-      // print(location.latitude.toString());
-      // print(location.longitude.toString());
     });
   }
 
@@ -145,11 +141,16 @@ class _TrackPageState extends State<TrackPage> {
       return;
     }
     BackgroundLocation.startLocationService();
+    startTimerForTrackLocation();
     _updateLocation();
   }
 
   void _stopLocation() {
     BackgroundLocation.stopLocationService();
+    if (locationTimer!.isActive) {
+      locationTimer!.cancel();
+    }
+    _myMarker = null;
   }
 
   @override
@@ -198,10 +199,6 @@ class _TrackPageState extends State<TrackPage> {
                   : (!isMorning && hasEveningData
                       ? data["akşam"]!["locations"]
                       : null);
-              // print(isMorning);
-              // print(locations);
-              // print(hasEveningData);
-              // Clear the route points
               _routePoints.clear();
 
               // Add the route points
@@ -228,8 +225,8 @@ class _TrackPageState extends State<TrackPage> {
                       mapToolbarEnabled: true,
                       polylines: snapshot.data ?? {},
                       initialCameraPosition: CameraPosition(
-                        target: LatLng(lat, long),
-                        zoom: 15,
+                        target: LatLng(39.93634092516396, 32.8238638211257),
+                        zoom: 14,
                       ),
                       markers: _myMarker != null
                           ? Set<Marker>.of([_myMarker!])

@@ -12,7 +12,6 @@ class BusListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String routeName = "";
     return Scaffold(
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('Maps').snapshots(),
