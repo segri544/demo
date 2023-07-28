@@ -11,6 +11,7 @@ import 'package:background_location/background_location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 class TrackPage extends StatefulWidget {
   final String documentId;
@@ -221,11 +222,10 @@ class _TrackPageState extends State<TrackPage> {
                     return GoogleMap(
                       onMapCreated: (controller) {
                         _mapController = controller;
+                        _createPolylinesSet();
                       },
-
                       zoomControlsEnabled: false,
                       mapToolbarEnabled: true,
-                      // markers: _createMarkersSet(),
                       polylines: snapshot.data ?? {},
                       initialCameraPosition: CameraPosition(
                         target: LatLng(lat, long),
@@ -317,11 +317,24 @@ class _TrackPageState extends State<TrackPage> {
   Future<Set<Polyline>> _createPolylinesSet() async {
     if (_routePoints.length > 1) {
       List<LatLng> routePoints = [];
+
+      // Create a list to store the futures of route segments
+      List<Future<List<LatLng>>> routeSegmentsFutures = [];
+
       for (int i = 0; i < _routePoints.length - 1; i++) {
-        List<LatLng> segmentPoints =
-            await fetchRoutePoints(_routePoints[i], _routePoints[i + 1]);
-        routePoints.addAll(segmentPoints);
+        // Add the future of the route segment to the list
+        routeSegmentsFutures.add(_getRouteBetweenCoordinates(
+          _routePoints[i],
+          _routePoints[i + 1],
+        ));
       }
+
+      // Execute all the route segment futures in parallel
+      List<List<LatLng>> routeSegments =
+          await Future.wait(routeSegmentsFutures);
+
+      // Flatten the list of lists into a single list of all route points
+      routePoints.addAll(routeSegments.expand((segment) => segment));
 
       Color polylineColor = isMorning ? Colors.orange : Colors.blue;
 
@@ -338,68 +351,24 @@ class _TrackPageState extends State<TrackPage> {
     }
   }
 
-  // Function to fetch route data from Directions API
-  Future<List<LatLng>> fetchRoutePoints(
-      LatLng origin, LatLng destination) async {
-    final apiKey = google_api_key;
-    final apiUrl =
-        "https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey";
+  Future<List<LatLng>> _getRouteBetweenCoordinates(
+    LatLng origin,
+    LatLng destination,
+  ) async {
+    List<LatLng> polylineCoordinates = [];
+    PolylinePoints polylinePoints = PolylinePoints();
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      google_api_key, // Replace with your Google Maps API key
+      PointLatLng(origin.latitude, origin.longitude),
+      PointLatLng(destination.latitude, destination.longitude),
+      travelMode: TravelMode.driving,
+    );
 
-    final response = await http.get(Uri.parse(apiUrl));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data["status"] == "OK") {
-        final List<dynamic> routes = data["routes"];
-        if (routes.isNotEmpty) {
-          final List<dynamic> legs = routes[0]["legs"];
-          if (legs.isNotEmpty) {
-            final List<dynamic> steps = legs[0]["steps"];
-            List<LatLng> points = [];
-            for (final step in steps) {
-              final encodedPolyline = step["polyline"]["points"];
-              final List<LatLng> decodedPoints =
-                  decodeEncodedPolyline(encodedPolyline);
-              points.addAll(decodedPoints);
-            }
-            return points;
-          }
-        }
-      }
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
     }
-    return [];
-  }
-
-  // Helper function to decode the encoded polyline points
-  List<LatLng> decodeEncodedPolyline(String encoded) {
-    List<LatLng> points = [];
-    int index = 0;
-    int lat = 0;
-    int lng = 0;
-    while (index < encoded.length) {
-      int b;
-      int shift = 0;
-      int result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1F) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lat += dlat;
-      shift = 0;
-      result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1F) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lng += dlng;
-
-      double latitude = lat / 1e5;
-      double longitude = lng / 1e5;
-      points.add(LatLng(latitude, longitude));
-    }
-    return points;
+    return polylineCoordinates;
   }
 }
