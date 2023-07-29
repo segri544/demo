@@ -34,11 +34,6 @@ class _TrackPageState extends State<TrackPage> {
   bool serviceEnabled = false;
   Timer? locationTimer;
 
-  Future<void> ToGetLocation() async {
-    driverId = await FireStoreMethods()
-        .getDriverIdByRouteName(widget.documentId, widget.routeName);
-  }
-
   void startTimerForTrackLocation() {
     locationTimer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
       getLocation(); // Call your function here
@@ -72,10 +67,12 @@ class _TrackPageState extends State<TrackPage> {
   @override
   void initState() {
     super.initState();
-    getUserData();
     _loadIsTrackingState(); // Saklanan isTracking durumunu yükle
-    ToGetLocation();
+    getUserData();
+    // ToGetLocation();
     startTimerForTrackLocation();
+
+    _myMarker = null;
   }
 
   void _loadIsTrackingState() async {
@@ -88,6 +85,9 @@ class _TrackPageState extends State<TrackPage> {
   @override
   void dispose() {
     _saveIsTrackingState(); // Durumu kaydet
+    setState(() {
+      isTracking = false;
+    });
     super.dispose();
   }
 
@@ -228,8 +228,10 @@ class _TrackPageState extends State<TrackPage> {
                         target: LatLng(39.93634092516396, 32.8238638211257),
                         zoom: 14,
                       ),
-                      markers: _myMarker != null
-                          ? Set<Marker>.of([_myMarker!])
+                      markers: isTracking
+                          ? (_myMarker != null
+                              ? Set<Marker>.of([_myMarker!])
+                              : Set<Marker>())
                           : Set<Marker>(),
                     );
                   }
@@ -290,17 +292,11 @@ class _TrackPageState extends State<TrackPage> {
                     });
                   },
                   child: Text(
-                    serviceEnabled
-                        ? (isTracking
-                            ? "Canlı konum durdur"
-                            : "Canlı konum başlat")
-                        : "Canlı konum başlat",
+                    (isTracking ? "Canlı konum durdur" : "Canlı konum başlat"),
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   style: ElevatedButton.styleFrom(
-                    primary: serviceEnabled
-                        ? (isTracking ? Colors.red : Colors.blue)
-                        : Colors.blue,
+                    primary: (isTracking ? Colors.red : Colors.blue),
 
                     onPrimary: Colors.white,
                     // shape: StadiumBorder(),
