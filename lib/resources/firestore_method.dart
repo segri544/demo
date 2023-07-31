@@ -34,19 +34,26 @@ class FireStoreMethods {
   Future<void> likeDestination(
       String destinationID, String userID, List likes) async {
     try {
+      var destinationData =
+          await _firestore.collection("Maps").doc(destinationID).get();
+
+      var destinationSnap = destinationData.data() as Map<String, dynamic>;
+
       if (likes.contains(userID)) {
         await _firestore.collection("Maps").doc(destinationID).update({
           "likes": FieldValue.arrayRemove([userID])
         });
         await _firestore.collection("users").doc(userID).update({
-          "likedDestination": FieldValue.arrayRemove([destinationID])
+          "likedDestination":
+              FieldValue.arrayRemove([destinationSnap["sabah"]["name"]])
         });
       } else {
         await _firestore.collection("Maps").doc(destinationID).update({
           "likes": FieldValue.arrayUnion([userID])
         });
         await _firestore.collection("users").doc(userID).update({
-          "likedDestination": FieldValue.arrayUnion([destinationID])
+          "likedDestination":
+              FieldValue.arrayUnion([destinationSnap["sabah"]["name"]])
         });
       }
     } catch (err) {

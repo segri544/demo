@@ -3,6 +3,7 @@ import 'package:demo_app/screens/profile_edit_screen.dart';
 import 'package:demo_app/screens/create_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:demo_app/screens/track_page.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -124,12 +125,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 10),
                         const Divider(),
                         const SizedBox(height: 10),
-                        ListTile(
-                          leading: InkWell(
-                            onTap: () {
-                              FirebaseAuth.instance.signOut();
+                        Container(
+                          height: 250,
+                          width: 300,
+                          child: ListView.builder(
+                            itemCount: userData["likedDestination"].length,
+                            itemBuilder: (context, index) {
+                              final likedDestination =
+                                  userData["likedDestination"][index];
+                              return userData["likedDestination"].length == 0
+                                  ? const Column(
+                                      children: [
+                                        Center(
+                                          child: Text(
+                                            "Favori Rotanız Bulunamadı",
+                                            style: TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.red),
+                                          ),
+                                        ),
+                                        SizedBox(height: 15),
+                                        CircleAvatar(
+                                          radius: 35,
+                                          child: Icon(
+                                            Icons.search,
+                                            size: 35,
+                                          ),
+                                        )
+                                      ],
+                                    )
+                                  : Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8),
+                                      child: Card(
+                                        elevation: 15,
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                              image: DecorationImage(
+                                                image: AssetImage(
+                                                    "assets/bus_logo.jpg"),
+                                                opacity: 0.2,
+                                              ),
+                                              color: Colors.white),
+                                          height: 150,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(15),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              children: [
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  children: [
+                                                    Text(
+                                                      userData["likedDestination"]
+                                                              [index] ??
+                                                          "Favori Rotanız bulunmamaktaıdr",
+                                                      style: const TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 25,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
                             },
-                            child: Container(
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            FirebaseAuth.instance.signOut();
+                          },
+                          child: ListTile(
+                            leading: Container(
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
@@ -141,8 +219,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: Colors.white,
                               ),
                             ),
+                            title: const Text("Çıkış Yap"),
                           ),
-                          title: const Text("Çıkış Yap"),
                         ),
                       ],
                     ),
