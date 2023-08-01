@@ -6,14 +6,14 @@ class User {
   final String position;
   final String? address;
   final String? vehiclePlate;
-  final List? likedDestinations;
+  final List? likedDestination;
 
   const User(
       {this.id,
       this.address,
       this.vehiclePlate,
       required this.name,
-      this.likedDestinations,
+      this.likedDestination,
       required this.lastName,
       required this.email,
       required this.position});
@@ -24,7 +24,8 @@ class User {
       "email": email,
       "position": position,
       "address": address,
-      "vehiclePlate": vehiclePlate
+      "vehiclePlate": vehiclePlate,
+      "likedDestination": likedDestination
     };
   }
 }

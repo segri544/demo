@@ -56,9 +56,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         Text(
                           userData["position"],
-                          style: const TextStyle(fontSize: 25),
+                          style: const TextStyle(
+                              fontSize: 25, fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 20),
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -82,54 +82,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: 150,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => ProfileEditScreen(),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.amber,
-                                side: BorderSide.none,
-                                shape: const StadiumBorder()),
-                            child: const Text(
-                              "Edit Profile",
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ),
-                        ),
-                        userData["position"] == "Şöför"
-                            ? ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => CreateRoutePage(),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.amber,
-                                    side: BorderSide.none,
-                                    shape: const StadiumBorder()),
-                                child: const Text(
-                                  "Rota Oluştur",
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                              )
-                            : const SizedBox(),
-                        const SizedBox(height: 10),
-                        const Divider(),
-                        const SizedBox(height: 10),
+                        const Text("Favori Rotalar",
+                            style: TextStyle(fontSize: 28)),
                         Container(
-                          height: 250,
+                          height: 200,
                           width: 300,
                           child: ListView.builder(
-                            itemCount: userData["likedDestination"].length,
+                            itemCount: userData["likedDestination"] == null
+                                ? 0
+                                : userData["likedDestination"].length,
                             itemBuilder: (context, index) {
                               final likedDestination =
                                   userData["likedDestination"][index];
@@ -202,6 +163,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             },
                           ),
                         ),
+                        const Divider(),
+                        //--- Edit Profile---
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ProfileEditScreen(),
+                              ),
+                            );
+                          },
+                          child: ListTile(
+                            leading: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                color: Colors.red.withOpacity(0.8),
+                              ),
+                              child: const Icon(
+                                Icons.exit_to_app,
+                                color: Colors.white,
+                              ),
+                            ),
+                            title: const Text("Profili Düzenle"),
+                          ),
+                        ),
+                        //--Rota Oluştur--
+                        userData["position"] == "Şöför"
+                            ? InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => CreateRoutePage(),
+                                    ),
+                                  );
+                                },
+                                child: ListTile(
+                                  leading: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(100),
+                                      color: Colors.red.withOpacity(0.8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.create,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  title: const Text("Rota Oluştur"),
+                                ),
+                              )
+                            : SizedBox(),
+                        //-----Çıkış Yap-----
                         InkWell(
                           onTap: () {
                             FirebaseAuth.instance.signOut();

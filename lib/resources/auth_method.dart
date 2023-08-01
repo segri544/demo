@@ -33,7 +33,8 @@ class AuthMethods {
             lastName: lastName,
             position: position,
             address: userAddress,
-            vehiclePlate: carPlate);
+            vehiclePlate: carPlate,
+            likedDestination: []);
         //yukarıda aldığımız bilgilerle userın içeriklerini set ettik
         await _firestore
             .collection("users")

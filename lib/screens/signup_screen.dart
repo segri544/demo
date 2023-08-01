@@ -22,6 +22,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   final roles = ["Çalışan", "Şöför", "Stajyer"];
   String _defaultValue = "Çalışan";
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -32,6 +33,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void signUpUser() async {
     if (_passwordController.text == _passwordConfController.text) {
+      setState(() {
+        _isLoading = true;
+      });
       String res = await AuthMethods().signUpUser(
           email: _emailController.text.trim(),
           password: _passwordConfController.text.trim(),
@@ -40,6 +44,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           position: _defaultValue,
           carPlate: _vehiclePlateController.text,
           userAddress: _addressController.text);
+
+      setState(() {
+        _isLoading = false;
+      });
       if (res != "success") {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -76,104 +84,107 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 30),
-                const Image(
-                  width: 200,
-                  image: AssetImage("assets/Havelsan_logo.svg.png"),
-                ),
-                Text(
-                  "HAVELSAN servis takip sistemi",
-                  style: TextStyle(
-                      color: Colors.grey[700], fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 25),
-                MyTextField(
-                  controller: _nameController,
-                  hintText: "İsim",
-                  isObscure: false,
-                ),
-                MyTextField(
-                  controller: _lastNameController,
-                  hintText: "Soyisim",
-                  isObscure: false,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Şirketteki Rolünüz : "),
-                    DropdownButton<String>(
-                        value: _defaultValue,
-                        items:
-                            roles.map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (String? dummy) {
-                          setState(() {
-                            _defaultValue = dummy!;
-                          });
-                        }),
-                  ],
-                ),
-                _defaultValue == roles[1]
-                    ? MyTextField(
-                        controller: _vehiclePlateController,
-                        hintText: "Araç Plakası",
-                        isObscure: false)
-                    : MyTextField(
-                        controller: _addressController,
-                        hintText: "Addresiniz",
-                        isObscure: false),
-                const SizedBox(height: 10),
-                MyTextField(
-                  controller: _emailController,
-                  hintText: "E-mail",
-                  isObscure: false,
-                ),
-                MyTextField(
-                  controller: _passwordController,
-                  hintText: "Şifre",
-                  isObscure: true,
-                ),
-                MyTextField(
-                  controller: _passwordConfController,
-                  hintText: "Şifre Tekrar",
-                  isObscure: true,
-                ),
-                const SizedBox(height: 25),
-                ButtonLarge(title: "Kaydol", onTapFunction: signUpUser),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Zaten Üye Misiniz?",
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        "Giriş Yap",
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 16, 99, 166)),
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 30),
+                      const Image(
+                        width: 200,
+                        image: AssetImage("assets/Havelsan_logo.svg.png"),
                       ),
-                    )
-                  ],
-                )
-              ],
-            ),
-          ),
+                      Text(
+                        "HAVELSAN servis takip sistemi",
+                        style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 25),
+                      MyTextField(
+                        controller: _nameController,
+                        hintText: "İsim",
+                        isObscure: false,
+                      ),
+                      MyTextField(
+                        controller: _lastNameController,
+                        hintText: "Soyisim",
+                        isObscure: false,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Şirketteki Rolünüz : "),
+                          DropdownButton<String>(
+                              value: _defaultValue,
+                              items: roles.map<DropdownMenuItem<String>>(
+                                  (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              onChanged: (String? dummy) {
+                                setState(() {
+                                  _defaultValue = dummy!;
+                                });
+                              }),
+                        ],
+                      ),
+                      _defaultValue == roles[1]
+                          ? MyTextField(
+                              controller: _vehiclePlateController,
+                              hintText: "Araç Plakası",
+                              isObscure: false)
+                          : MyTextField(
+                              controller: _addressController,
+                              hintText: "Addresiniz",
+                              isObscure: false),
+                      const SizedBox(height: 10),
+                      MyTextField(
+                        controller: _emailController,
+                        hintText: "E-mail",
+                        isObscure: false,
+                      ),
+                      MyTextField(
+                        controller: _passwordController,
+                        hintText: "Şifre",
+                        isObscure: true,
+                      ),
+                      MyTextField(
+                        controller: _passwordConfController,
+                        hintText: "Şifre Tekrar",
+                        isObscure: true,
+                      ),
+                      const SizedBox(height: 25),
+                      ButtonLarge(title: "Kaydol", onTapFunction: signUpUser),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Zaten Üye Misiniz?",
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginPage(),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "Giriş Yap",
+                              style: TextStyle(
+                                  color: Color.fromARGB(255, 16, 99, 166)),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
         ),
       ),
     );

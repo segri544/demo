@@ -15,12 +15,37 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
+  final titles = const ["Servis Listesi", "Profil"];
   final screens = const [BusListScreen(), ProfileScreen()];
 
   @override
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 8,
+        toolbarHeight: 60,
+        title: Text(
+          titles[selectedIndex],
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(10),
+              bottomRight: Radius.circular(10),
+            ),
+            gradient: LinearGradient(
+              colors: [Color.fromARGB(255, 16, 99, 166), Colors.blue],
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+            ),
+          ),
+        ),
+      ),
       body: SafeArea(
         child: screens[selectedIndex],
       ),

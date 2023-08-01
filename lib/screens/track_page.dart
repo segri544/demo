@@ -48,6 +48,7 @@ class _TrackPageState extends State<TrackPage> {
         .get();
     lat = userSnap["latitude"] as double;
     long = userSnap["longtitude"] as double;
+    isTracking = userSnap["istracking"];
     _updateMarker(LatLng(lat, long));
     print("lat: long: $lat $long");
     // setState(() {});
@@ -70,7 +71,7 @@ class _TrackPageState extends State<TrackPage> {
     getUserData();
     startTimerForTrackLocation();
     _loadIsTrackingState(); // Saklanan isTracking durumunu yükle
-
+    _updateLocation();
     _myMarker = null;
   }
 
@@ -223,9 +224,11 @@ class _TrackPageState extends State<TrackPage> {
                           target: LatLng(39.93634092516396, 32.8238638211257),
                           zoom: 11,
                         ),
-                        markers: (_myMarker != null
-                            ? Set<Marker>.of([_myMarker!])
-                            : Set<Marker>()));
+                        markers: isTracking
+                            ? (_myMarker != null
+                                ? Set<Marker>.of([_myMarker!])
+                                : Set<Marker>())
+                            : Set<Marker>());
                   }
                 },
               );
@@ -283,6 +286,8 @@ class _TrackPageState extends State<TrackPage> {
                     setState(() {
                       isTracking = !isTracking;
                       FireStoreMethods().updateIstracingFirestore(isTracking);
+                      _myMarker = null;
+                      _updateLocation();
                     });
                   },
                   child: Text(
