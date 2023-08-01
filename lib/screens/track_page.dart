@@ -67,10 +67,9 @@ class _TrackPageState extends State<TrackPage> {
   @override
   void initState() {
     super.initState();
-    _loadIsTrackingState(); // Saklanan isTracking durumunu yükle
     getUserData();
-    // ToGetLocation();
     startTimerForTrackLocation();
+    _loadIsTrackingState(); // Saklanan isTracking durumunu yükle
 
     _myMarker = null;
   }
@@ -84,10 +83,7 @@ class _TrackPageState extends State<TrackPage> {
 
   @override
   void dispose() {
-    _saveIsTrackingState(); // Durumu kaydet
-    setState(() {
-      isTracking = false;
-    });
+    _saveIsTrackingState();
     super.dispose();
   }
 
@@ -96,13 +92,12 @@ class _TrackPageState extends State<TrackPage> {
     prefs.setBool('isTracking', isTracking); // isTracking durumunu kaydet
   }
 
-// _myMarker'ı güncelleyecek fonksiyon
+// _myMarker'ı updated to new location
   void _updateMarker(LatLng newPosition) {
     setState(() {
       _myMarker = Marker(
         markerId: MarkerId(widget.routeName),
         position: newPosition,
-        // Diğer özellikler, örneğin icon, title, vs. burada belirtilebilir
       );
       // _mapController?.animateCamera(
       //     CameraUpdate.newCameraPosition(CameraPosition(target: newPosition)));
@@ -217,23 +212,20 @@ class _TrackPageState extends State<TrackPage> {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else {
                     return GoogleMap(
-                      onMapCreated: (controller) {
-                        _mapController = controller;
-                        _createPolylinesSet();
-                      },
-                      zoomControlsEnabled: false,
-                      mapToolbarEnabled: true,
-                      polylines: snapshot.data ?? {},
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(39.93634092516396, 32.8238638211257),
-                        zoom: 14,
-                      ),
-                      markers: isTracking
-                          ? (_myMarker != null
-                              ? Set<Marker>.of([_myMarker!])
-                              : Set<Marker>())
-                          : Set<Marker>(),
-                    );
+                        onMapCreated: (controller) {
+                          _mapController = controller;
+                          _createPolylinesSet();
+                        },
+                        zoomControlsEnabled: false,
+                        mapToolbarEnabled: true,
+                        polylines: snapshot.data ?? {},
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(39.93634092516396, 32.8238638211257),
+                          zoom: 11,
+                        ),
+                        markers: (_myMarker != null
+                            ? Set<Marker>.of([_myMarker!])
+                            : Set<Marker>()));
                   }
                 },
               );
@@ -244,15 +236,18 @@ class _TrackPageState extends State<TrackPage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             FloatingActionButton(
-              child: Icon(Icons.location_on),
-              onPressed: () {
-                if (_mapController != null) {
-                  _mapController!.animateCamera(CameraUpdate.newLatLng(
-                    LatLng(lat, long),
-                  ));
-                }
-              },
-            ),
+                child: Icon(Icons.location_on),
+                onPressed: () {
+                  if (_mapController != null) {
+                    isTracking
+                        ? _mapController!.animateCamera(
+                            CameraUpdate.newLatLng(LatLng(lat, long)))
+                        : _mapController!.animateCamera(
+                            CameraUpdate.newLatLngZoom(
+                                LatLng(39.93634092516396, 32.8238638211257),
+                                11.0)); // ANKARA
+                  }
+                }),
             FloatingActionButton(
               onPressed: () {
                 setState(() {
@@ -273,8 +268,6 @@ class _TrackPageState extends State<TrackPage> {
             ),
           ],
         ),
-        // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-
         bottomNavigationBar: (userData["position"] == "Şöför"
             ? BottomAppBar(
                 color: Colors.blue, // Custom background color
