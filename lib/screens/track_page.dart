@@ -107,8 +107,8 @@ class _TrackPageState extends State<TrackPage> {
   void _updateLocation() {
     print("update location");
     BackgroundLocation.getLocationUpdates((location) {
-      FireStoreMethods().updateLocationFirestore(
-          location.latitude as double, location.longitude as double);
+      FireStoreMethods().updateLocationFirestore(location.latitude as double,
+          location.longitude as double, isTracking);
     });
   }
 
@@ -137,7 +137,6 @@ class _TrackPageState extends State<TrackPage> {
     }
     BackgroundLocation.startLocationService();
     startTimerForTrackLocation();
-    _updateLocation();
   }
 
   void _stopLocation() {
@@ -152,7 +151,8 @@ class _TrackPageState extends State<TrackPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blue, // Custom background color
+          backgroundColor:
+              Color.fromARGB(255, 16, 99, 166), // Custom background color
           elevation: 4, // Add a shadow/elevation to the AppBar
           toolbarHeight: 45, // Increase the AppBar's height for a modern look
           title: Text(widget.routeName.toUpperCase(),
@@ -270,7 +270,7 @@ class _TrackPageState extends State<TrackPage> {
         ),
         bottomNavigationBar: (userData["position"] == "Şöför"
             ? BottomAppBar(
-                color: Colors.blue, // Custom background color
+                color: Color.fromARGB(255, 16, 99, 166),
                 child: ElevatedButton(
                   onPressed: () {
                     if (isTracking) {
@@ -282,6 +282,7 @@ class _TrackPageState extends State<TrackPage> {
                     }
                     setState(() {
                       isTracking = !isTracking;
+                      FireStoreMethods().updateIstracingFirestore(isTracking);
                     });
                   },
                   child: Text(
@@ -289,7 +290,9 @@ class _TrackPageState extends State<TrackPage> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   style: ElevatedButton.styleFrom(
-                    primary: (isTracking ? Colors.red : Colors.blue),
+                    primary: (isTracking
+                        ? Colors.red
+                        : Color.fromARGB(255, 16, 99, 166)),
 
                     onPrimary: Colors.white,
                     // shape: StadiumBorder(),

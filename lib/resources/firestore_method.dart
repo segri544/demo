@@ -178,13 +178,15 @@ class FireStoreMethods {
   }
 
   // **************************************************
-  Future updateLocationFirestore(double lat, double long) async {
+  Future updateLocationFirestore(
+      double lat, double long, bool istracking) async {
     final CollectionReference _collectionRef =
         FirebaseFirestore.instance.collection('location');
     // print("${_auth.currentUser!.uid}: updateLocationFirestore");
     Map<String, dynamic> json = {
       "latitude": lat,
       "longtitude": long,
+      "istracking": istracking,
     };
     _collectionRef.doc(_auth.currentUser!.uid).set(json).then((_) {
       print("Document updated successfully!");
@@ -193,37 +195,17 @@ class FireStoreMethods {
     });
   }
 
-  Future<LatLng?> getLocationFirestore(String documentId) async {
-    try {
-      // Access the Firestore collection and document using the provided documentId
-      DocumentSnapshot<Map<String, dynamic>> snapshot =
-          await FirebaseFirestore.instance
-              .collection('location') // Specify the collection name
-              .doc(documentId) // Specify the document ID
-              .get();
-
-      // Check if the document exists
-      if (snapshot.exists) {
-        // Get the data from the document
-        Map<String, dynamic> data = snapshot.data()!;
-
-        // Extract the latitude and longitude values from the data
-        double latitude = data['latitude'] as double;
-        double longitude = data['longitude'] as double;
-
-        // Create a LatLng object with the retrieved latitude and longitude
-        LatLng locationLatLng = LatLng(latitude, longitude);
-
-        return locationLatLng;
-      } else {
-        // Document not found, return null or handle the case accordingly
-        return null;
-      }
-    } catch (e) {
-      // Handle any errors that may occur during the Firestore read operation
-      print('Error getting location from Firestore: $e');
-      return null;
-    }
+  Future updateIstracingFirestore(bool istracking) async {
+    final CollectionReference _collectionRef =
+        FirebaseFirestore.instance.collection('location');
+    Map<String, dynamic> json = {
+      "istracking": istracking,
+    };
+    _collectionRef.doc(_auth.currentUser!.uid).update(json).then((_) {
+      print("Document updated successfully!");
+    }).catchError((error) {
+      print("Error updating document: $error");
+    });
   }
 
   //*****************************************************************
@@ -236,7 +218,6 @@ class FireStoreMethods {
       if (documentSnapshot.exists) {
         final data = documentSnapshot.data();
         final driverId = data!["destinationId"] as String;
-        // print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS $driverId");
 
         return driverId;
       } else {
