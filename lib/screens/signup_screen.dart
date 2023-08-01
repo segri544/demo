@@ -1,6 +1,8 @@
 import 'package:demo_app/components/button_large.dart';
 import 'package:demo_app/components/my_textfield.dart';
+import 'package:demo_app/main.dart';
 import 'package:demo_app/resources/auth_method.dart';
+import 'package:demo_app/screens/home_page.dart';
 import 'package:demo_app/screens/login_page.dart';
 import 'package:flutter/material.dart';
 
@@ -56,15 +58,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
         );
       } else {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => MyApp(),
+          ),
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.green,
-            content: Text("Kaydol Başarılı"),
-          ),
-        );
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => LoginPage(),
+            content: Text("Kaydolma İşlemi Başarılı"),
           ),
         );
       }

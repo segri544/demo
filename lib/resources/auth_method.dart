@@ -1,74 +1,96 @@
+/// >>>>>> Author: Berke Gürel <<<<<<<
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_app/models/user_model.dart' as model;
+import 'package:flutter/material.dart';
 
+// AuthMethods class for user authentication
 class AuthMethods {
-  final _auth = FirebaseAuth.instance;
-  final _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth =
+      FirebaseAuth.instance; // Firebase authentication instance
+  final _firestore =
+      FirebaseFirestore.instance; // Firestore instance for database access
 
-  //Sign-Up User
-  Future<String> signUpUser(
-      {required String email,
-      required String password,
-      required String name,
-      required String lastName,
-      required String position,
-      String? carPlate,
-      String? userAddress}) async {
-    String res = "Beklenmedik bir hata oluştu !";
+  // Sign up the user with provided details
+  Future<String> signUpUser({
+    required String email,
+    required String password,
+    required String name,
+    required String lastName,
+    required String position,
+    String? carPlate,
+    var likedDestinations,
+    String? userAddress,
+  }) async {
+    String res = "Beklenmedik bir hata oluştu !"; // Default error message
     try {
+      // Check if required fields are not empty
       if (email.isNotEmpty ||
           password.isNotEmpty ||
           name.isNotEmpty ||
           position.isNotEmpty ||
           lastName.isNotEmpty) {
-        //Register User
+        // Register User using Firebase Authentication
         UserCredential credential = await _auth.createUserWithEmailAndPassword(
-            email: email.trim(), password: password.trim());
+          email: email.trim(),
+          password: password.trim(),
+        );
 
-        //Add user to our database
+        // Create a new User object using the provided details
         model.User user = model.User(
-            email: email,
-            name: name,
-            lastName: lastName,
-            position: position,
-            address: userAddress,
-            vehiclePlate: carPlate,
-            likedDestination: []);
-        //yukarıda aldığımız bilgilerle userın içeriklerini set ettik
+          email: email,
+          name: name,
+          lastName: lastName,
+          position: position,
+          address: userAddress,
+          vehiclePlate: carPlate,
+          likedDestinations: [],
+        );
+
+        // Save user data to our Firestore database
         await _firestore
             .collection("users")
             .doc(credential.user!.uid)
             .set(user.toJson());
-        res = "success";
+
+        res = "success"; // Success message
       }
     } on FirebaseAuthException catch (err) {
+      // Handle specific FirebaseAuth exceptions
       if (err.code == "invalid-email") {
-        res = "Email is badly formatted";
+        res = "Email formatı yanlış"; // Invalid email format error message
       } else if (err.code == "weak-password") {
-        res = "Your password must be at least 6 characters";
+        res =
+            "Şifreniz en az 6 karakter içermelidir"; // Weak password error message
       }
     } catch (err) {
-      res = err.toString();
+      res = err.toString(); // General error message for any other errors
     }
-    return res;
+    return res; // Return the result of the sign-up process
   }
 
-  //Login User
+  // Login the user with provided email and password
   Future<String> logInUser(
       {required String email, required String password}) async {
-    String res = "Bir Hatayla karşılaşıldı";
+    String res = "Bir Hatayla karşılaşıldı"; // Default error message
     try {
+      // Check if email and password are not empty
       if (email.isNotEmpty || password.isNotEmpty) {
+        // Sign in the user using Firebase Authentication
         await _auth.signInWithEmailAndPassword(
-            email: email, password: password);
-        res = "success";
+          email: email,
+          password: password,
+        );
+
+        res = "success"; // Success message
       } else {
-        res = "Lütfen Her alanı doğru doldurunuz";
+        res =
+            "Lütfen Her alanı doğru doldurunuz"; // Error message for empty fields
       }
     } catch (err) {
-      res = err.toString();
+      res = err.toString(); // General error message for any other errors
     }
-    return res;
+    return res; // Return the result of the login process
   }
 }

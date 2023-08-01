@@ -33,6 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     if (res != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+          backgroundColor: Colors.red,
           content: Text("Email veya Şifre yanlış Girilmiştir"),
         ),
       );
@@ -64,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
                         image: AssetImage("assets/Havelsan_logo.svg.png"),
                       ),
                       Text(
-                        "HAVELSAN servis takip sistemi",
+                        "HAVELSAN Personel Servis Takip Sistemi",
                         style: TextStyle(
                             color: Colors.grey[700],
                             fontWeight: FontWeight.bold),
@@ -84,20 +85,6 @@ class _LoginPageState extends State<LoginPage> {
                         isObscure: true,
                       ),
                       const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 25),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Şifremi Unuttum ?",
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                       const SizedBox(height: 25),
                       ButtonLarge(title: "Giriş Yap", onTapFunction: logInUser),
                       const SizedBox(height: 50),

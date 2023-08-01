@@ -1,3 +1,6 @@
+// Authors: Sadık EĞRİ - Mehmet Enes Bilgin
+
+// Importing required packages and classes
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_app/resources/firestore_method.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +11,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:demo_app/resources/constants.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+// CreateRoutePage widget
 class CreateRoutePage extends StatefulWidget {
   const CreateRoutePage({Key? key}) : super(key: key);
 
@@ -15,9 +19,11 @@ class CreateRoutePage extends StatefulWidget {
   State<CreateRoutePage> createState() => CreateRoutePageState();
 }
 
+// CreateRoutePageState class
 class CreateRoutePageState extends State<CreateRoutePage> {
   final Completer<GoogleMapController> _controller = Completer();
 
+  // Set of markers and polylines to be displayed on the map
   Set<Marker> markers = {};
   Set<Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
@@ -28,7 +34,9 @@ class CreateRoutePageState extends State<CreateRoutePage> {
     super.initState();
   }
 
+  // Method to create a custom marker icon based on the marker ID
   Future<BitmapDescriptor> createCustomMarkerIcon(int markerId) async {
+    // Custom marker icon parameters
     const double pictureSize = 60.0;
     final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
@@ -70,10 +78,12 @@ class CreateRoutePageState extends State<CreateRoutePage> {
     return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
   }
 
+  // Method called when the map is created
   void _onMapCreated(GoogleMapController controller) {
     _controller.complete(controller);
   }
 
+  // Method called when a marker is dragged to a new position
   void _onMarkerDragEnd(MarkerId markerId, LatLng newPosition) {
     setState(() {
       markers = markers.map((marker) {
@@ -85,6 +95,7 @@ class CreateRoutePageState extends State<CreateRoutePage> {
     });
   }
 
+  // Method called when the map is tapped to add a new marker
   void _onMapTapped(LatLng tappedPoint) async {
     markerIdCounter++;
     final markerId = MarkerId(markerIdCounter.toString());
@@ -125,6 +136,7 @@ class CreateRoutePageState extends State<CreateRoutePage> {
     });
   }
 
+  // Method to create a route by connecting the markers with polylines
   void _createRoute() async {
     if (markers.length < 2) {
       // Not enough markers to create a route
@@ -166,17 +178,12 @@ class CreateRoutePageState extends State<CreateRoutePage> {
     });
   }
 
+  // Method to display a dialog for naming the route
   void _nameTheRoute() {
     String routeName = '';
-    String driverName = '';
     String PhoneNumber = '';
     double lat, long;
-    String vehiclePlate = "";
     List<GeoPoint> konum = [];
-
-    // Map<String, dynamic> _uploadData = <String, dynamic>{};
-    // FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
     bool isMorningSelected = false;
     bool isEveningSelected = false;
 
@@ -240,34 +247,43 @@ class CreateRoutePageState extends State<CreateRoutePage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    if (routeName.isNotEmpty && driverName.isNotEmpty) {}
-                    Navigator.of(context).pop(); // Close the dialog
-                    // print("*********************\n");
-                    for (int i = 0; i < markerIdCounter; i++) {
-                      String? newString =
-                          markers.elementAt(i).infoWindow.snippet?.substring(7);
-                      String? newString2 = newString?.replaceRange(
-                          newString.length - 1, newString.length, "");
-                      List<String>? latLngValues = newString2?.split(',');
-                      latLngValues?[1] = latLngValues[1].substring(1);
-                      lat = double.parse(latLngValues![0]);
-                      long = double.parse(latLngValues![1]);
-                      // GeoPoint(latLngValues?[0], latLngValues?[1]);
-                      konum.add(GeoPoint(lat, long));
-                    }
-                    while (routeName.endsWith(" ")) {
-                      routeName = routeName.trimRight();
-                    }
+                    if (routeName.isNotEmpty) {
+                      // If route name is not empty, proceed to save the route
+                      Navigator.of(context).pop(); // Close the dialog
 
-                    vehiclePlate = vehiclePlate.replaceAll(" ", "");
-                    PhoneNumber = PhoneNumber.replaceAll(" ", "");
+                      // Get the latitude and longitude of each marker and store them in konum list
+                      for (int i = 0; i < markerIdCounter; i++) {
+                        String? newString = markers
+                            .elementAt(i)
+                            .infoWindow
+                            .snippet
+                            ?.substring(7);
+                        String? newString2 = newString?.replaceRange(
+                            newString.length - 1, newString.length, "");
+                        List<String>? latLngValues = newString2?.split(',');
+                        latLngValues?[1] = latLngValues[1].substring(1);
+                        lat = double.parse(latLngValues![0]);
+                        long = double.parse(latLngValues![1]);
+                        konum.add(GeoPoint(lat, long));
+                      }
+                      // Remove any trailing spaces from the route name
+                      while (routeName.endsWith(" ")) {
+                        routeName = routeName.trimRight();
+                      }
 
-                    FireStoreMethods().uploadRoute(
+                      // Remove any spaces from the vehicle plate and phone number
+
+                      PhoneNumber = PhoneNumber.replaceAll(" ", "");
+
+                      // Call the method to upload the route to Firestore
+                      FireStoreMethods().uploadRoute(
                         routeName.toLowerCase(),
                         PhoneNumber,
                         konum,
                         isMorningSelected,
-                        isEveningSelected);
+                        isEveningSelected,
+                      );
+                    }
                   },
                   child: Text('Kaydet'),
                 ),
@@ -279,16 +295,6 @@ class CreateRoutePageState extends State<CreateRoutePage> {
     );
   }
 
-//  backgroundColor: Colors.blue, // Custom background color
-//         elevation: 4, // Add a shadow/elevation to the AppBar
-//         toolbarHeight: 45, // Increase the AppBar's height for a modern look
-//         title: Text(widget.documentId.toUpperCase(),
-//             style: TextStyle(
-//               color: Colors.white, // Set the title text color
-//               fontSize: 20, // Increase the font size
-//               fontWeight: FontWeight.bold,
-//               fontFamily: 'Montserrat', // Use a custom font
-//             )),
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -309,14 +315,15 @@ class CreateRoutePageState extends State<CreateRoutePage> {
             color: Color.fromARGB(255, 255, 255, 255),
             onSelected: (value) {
               if (value == 'deleteMarker') {
-                // Call _deleteMarker method here
+                // Call _deleteMarker method here when "Son Konumu Kaldır" is selected
                 if (markers.isNotEmpty) {
                   _deleteMarker(markers.last.markerId);
                 }
               } else if (value == 'resetMarkers') {
-                // Call _resetMarkersAndPolylines method here
+                // Call _resetMarkersAndPolylines method here when "Sıfırla" is selected
                 _resetMarkersAndPolylines();
               } else if (value == 'Save Route') {
+                // Call _nameTheRoute method here when "Güzergahı Kaydet" is selected
                 _nameTheRoute();
               }
             },

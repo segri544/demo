@@ -1,3 +1,5 @@
+/// >>>>>> Author: Berke Gürel <<<<<<<
+// class that stores driver's variables
 class Destination {
   final String carPlate;
   final String driverId;
