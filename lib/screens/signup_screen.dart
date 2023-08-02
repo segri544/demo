@@ -109,7 +109,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         image: AssetImage("assets/Havelsan_logo.svg.png"),
                       ),
                       Text(
-                        "HAVELSAN servis takip sistemi",
+                        "HAVELSAN Personel Servis Takip Sistemi",
                         style: TextStyle(
                             color: Colors.grey[700],
                             fontWeight: FontWeight.bold),

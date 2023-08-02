@@ -4,7 +4,6 @@ import 'package:demo_app/resources/firestore_method.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-// A custom widget to display a bus card
 class BusCard extends StatefulWidget {
   final Map<String, dynamic> snap; // Data for the bus card
 
@@ -44,7 +43,9 @@ class _BusCardState extends State<BusCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Text(
-                      widget.snap["sabah"]["name"].toUpperCase(),
+                      widget.snap["sabah"] != null
+                          ? widget.snap["sabah"]["name"].toUpperCase()
+                          : widget.snap["akşam"]["name"].toUpperCase(),
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 25,
@@ -55,7 +56,9 @@ class _BusCardState extends State<BusCard> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          widget.snap["sabah"]["numberPlate"],
+                          widget.snap["sabah"] != null
+                              ? widget.snap["sabah"]["numberPlate"]
+                              : widget.snap["akşam"]["numberPlate"],
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -64,9 +67,16 @@ class _BusCardState extends State<BusCard> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                            "Şoför : ${widget.snap["sabah"]["driverName"].toUpperCase()}"),
+                          widget.snap["sabah"] != null
+                              ? "Şoför : ${widget.snap["sabah"]["driverName"].toUpperCase()}"
+                              : "Şoför : ${widget.snap["akşam"]["driverName"].toUpperCase()}",
+                        ),
                         const SizedBox(width: 15),
-                        Text("Tel : ${widget.snap["sabah"]["phone"]}"),
+                        Text(
+                          widget.snap["sabah"] != null
+                              ? "Tel : ${widget.snap["sabah"]["phone"]}"
+                              : "Tel : ${widget.snap["akşam"]["phone"]}",
+                        ),
                       ],
                     ),
                   ],
@@ -80,9 +90,10 @@ class _BusCardState extends State<BusCard> {
                     onPressed: () async {
                       // Function to handle the like button click and update the likes count
                       await FireStoreMethods().likeDestination(
-                          widget.snap["destinationId"],
-                          FirebaseAuth.instance.currentUser!.uid,
-                          widget.snap["likes"]);
+                        widget.snap["destinationId"],
+                        FirebaseAuth.instance.currentUser!.uid,
+                        widget.snap["likes"],
+                      );
                     },
                     icon: Icon(
                       // Icon based on whether the user has liked the destination or not

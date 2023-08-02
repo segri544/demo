@@ -105,8 +105,8 @@ class FireStoreMethods {
       } else if (evening && !morning) {
         json = {
           "likes": [],
+          "destinationId": _auth.currentUser!.uid,
           "akşam": {
-            "destinationId": _auth.currentUser!.uid,
             "name": name,
             "driverName": "${userData["name"]} ${userData["lastName"]}",
             "phone": phone,
@@ -204,7 +204,8 @@ class FireStoreMethods {
       if (documentSnapshot.exists) {
         final data = documentSnapshot.data();
         final driverId = data!["destinationId"] as String;
-
+        print("aaaaaaaaaaaaaaaaaaaaa");
+        print(driverId);
         return driverId;
       } else {
         return "null";
