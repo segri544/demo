@@ -1,4 +1,4 @@
-/// >>>>>> Author: Berke Gürel <<<<<<<
+/// >>>>>> Author: Berke Gürel, Sadık EĞRİ, Mehmet Enes BİLGİN <<<<<<<
 ///
 import 'package:demo_app/resources/firestore_method.dart';
 import 'package:firebase_auth/firebase_auth.dart';

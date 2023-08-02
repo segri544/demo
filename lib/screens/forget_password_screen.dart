@@ -1,3 +1,6 @@
+// Authors: Berke GÜREL
+
+// This page is not using by app (but it will - should be)
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

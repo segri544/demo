@@ -1,3 +1,5 @@
+// Author: Berke GÜREL
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_app/components/bus_card.dart';
@@ -27,10 +29,13 @@ class BusListScreen extends StatelessWidget {
             );
           }
 
+          // Extracting data from the snapshot
           final routes = snapshot.data!.docs;
 
+          // Creating a map to store unique routes with their data
           final uniqueRoutes = <String, Map<String, dynamic>>{};
 
+          // Iterating through all routes from the snapshot data
           for (final route in routes) {
             final routeData = route.data() as Map<String, dynamic>;
             final routeName = route.id;
@@ -38,6 +43,8 @@ class BusListScreen extends StatelessWidget {
                 as Map<String, dynamic>?; // Use null safety for safe access
             final eveningData = routeData['akşam']
                 as Map<String, dynamic>?; // Use null safety for safe access
+
+            // Storing routes with morning or evening data in the uniqueRoutes map
             if (morningData != null || eveningData != null) {
               uniqueRoutes[routeName] = {
                 if (morningData != null) ...morningData,
@@ -45,11 +52,15 @@ class BusListScreen extends StatelessWidget {
               };
             }
           }
+
+          // Building a ListView with unique route data
           return ListView.builder(
             itemCount: uniqueRoutes.length,
             itemBuilder: (context, index) {
               final RouteID = uniqueRoutes.keys.elementAt(index);
               final routeData = uniqueRoutes[RouteID];
+
+              // Navigating to TrackPage with specific data when a BusCard is tapped
               return GestureDetector(
                 onTap: () {
                   Navigator.push(

@@ -52,7 +52,7 @@ class CreateRoutePageState extends State<CreateRoutePage> {
       paint,
     );
 
-    // Draw the marker ID on top of the circle
+    // Draw the marker ID on top of the circle incremented by counterId
     textPainter.text = TextSpan(
       text: markerId.toString(),
       style: const TextStyle(
@@ -179,12 +179,16 @@ class CreateRoutePageState extends State<CreateRoutePage> {
   }
 
   // Method to display a dialog for naming the route
+
   void _nameTheRoute() {
+    // route name and phone number is takig as input
     String routeName = '';
     String PhoneNumber = '';
+    // lat long variables will be setted as Latlng(lat,lng)
     double lat, long;
-    List<GeoPoint> konum = [];
-    bool isMorningSelected = false;
+    List<GeoPoint> konum = []; // each Latlng is stored in konum list
+    bool isMorningSelected =
+        false; // select if route is morning or evening or both
     bool isEveningSelected = false;
 
     showDialog(
@@ -277,7 +281,8 @@ class CreateRoutePageState extends State<CreateRoutePage> {
 
                       // Call the method to upload the route to Firestore
                       FireStoreMethods().uploadRoute(
-                        routeName.toLowerCase(),
+                        routeName
+                            .toLowerCase(), // to make database case insensitive
                         PhoneNumber,
                         konum,
                         isMorningSelected,
@@ -299,7 +304,8 @@ class CreateRoutePageState extends State<CreateRoutePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 16, 99, 166),
+        backgroundColor: Color.fromARGB(255, 16, 99,
+            166), // this page has own appbar therefore we overrided build
         title: const Text(
           "Güzergah Oluşturma Ekrani",
           style: TextStyle(
@@ -311,6 +317,7 @@ class CreateRoutePageState extends State<CreateRoutePage> {
           fontFamily: 'Montserrat',
         ),
         actions: [
+          // on pop up menu we can delete last marker, initilize map again or save the route
           PopupMenuButton<String>(
             color: Color.fromARGB(255, 255, 255, 255),
             onSelected: (value) {
@@ -345,12 +352,13 @@ class CreateRoutePageState extends State<CreateRoutePage> {
         ],
       ),
       body: GoogleMap(
-        onTap: _onMapTapped,
-        onMapCreated: _onMapCreated,
+        onTap: _onMapTapped, // call this funtion if map tapped
+        onMapCreated: _onMapCreated, // call this when map created
         polylines: polylines,
         markers: markers,
         initialCameraPosition: const CameraPosition(
-          target: LatLng(39.915447686012385, 32.772942732056286),
+          target: LatLng(39.915447686012385,
+              32.772942732056286), //Havelsan Center Location
           zoom: 15,
         ),
       ),
@@ -358,7 +366,8 @@ class CreateRoutePageState extends State<CreateRoutePage> {
         alignment: Alignment.bottomCenter,
         child: ElevatedButton(
           onPressed: _createRoute,
-          child: const Text("Güzergah Oluştur"),
+          child:
+              const Text("Güzergah Oluştur"), // preview Route that you created
         ),
       ),
     );

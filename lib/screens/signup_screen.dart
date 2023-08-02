@@ -1,3 +1,4 @@
+// Author: Berke GÜREL
 import 'package:demo_app/components/button_large.dart';
 import 'package:demo_app/components/my_textfield.dart';
 import 'package:demo_app/main.dart';
@@ -14,6 +15,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  // Controllers for user input fields
   final _nameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -33,36 +35,45 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _passwordController.dispose();
   }
 
+  // Method to sign up a new user
   void signUpUser() async {
+    // Check if passwords match
     if (_passwordController.text == _passwordConfController.text) {
       setState(() {
-        _isLoading = true;
+        _isLoading = true; // Show loading indicator while signing up
       });
+
+      // Call the signUpUser method from the AuthMethods class to register the user
       String res = await AuthMethods().signUpUser(
-          email: _emailController.text.trim(),
-          password: _passwordConfController.text.trim(),
-          name: _nameController.text.trim(),
-          lastName: _lastNameController.text.trim(),
-          position: _defaultValue,
-          carPlate: _vehiclePlateController.text,
-          userAddress: _addressController.text);
+        email: _emailController.text.trim(),
+        password: _passwordConfController.text.trim(),
+        name: _nameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        position: _defaultValue,
+        carPlate: _vehiclePlateController.text,
+        userAddress: _addressController.text,
+      );
 
       setState(() {
-        _isLoading = false;
+        _isLoading = false; // Hide loading indicator after signing up
       });
+
+      // Show appropriate snackbar messages based on the result of user registration
       if (res != "success") {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.red,
-            content: Text("bir hatayla karşılaşıldı"),
+            content: Text("Bir hatayla karşılaşıldı"),
           ),
         );
       } else {
+        // If registration is successful, navigate to the home page
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => MyApp(),
           ),
         );
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.green,
@@ -119,30 +130,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         children: [
                           const Text("Şirketteki Rolünüz : "),
                           DropdownButton<String>(
-                              value: _defaultValue,
-                              items: roles.map<DropdownMenuItem<String>>(
-                                  (String value) {
+                            value: _defaultValue,
+                            items: roles.map<DropdownMenuItem<String>>(
+                              (String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text(value),
                                 );
-                              }).toList(),
-                              onChanged: (String? dummy) {
-                                setState(() {
-                                  _defaultValue = dummy!;
-                                });
-                              }),
+                              },
+                            ).toList(),
+                            onChanged: (String? dummy) {
+                              setState(() {
+                                _defaultValue = dummy!;
+                              });
+                            },
+                          ),
                         ],
                       ),
                       _defaultValue == roles[1]
                           ? MyTextField(
                               controller: _vehiclePlateController,
                               hintText: "Araç Plakası",
-                              isObscure: false)
+                              isObscure: false,
+                            )
                           : MyTextField(
                               controller: _addressController,
-                              hintText: "Addresiniz",
-                              isObscure: false),
+                              hintText: "Adresiniz",
+                              isObscure: false,
+                            ),
                       const SizedBox(height: 10),
                       MyTextField(
                         controller: _emailController,
@@ -160,7 +175,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         isObscure: true,
                       ),
                       const SizedBox(height: 25),
-                      ButtonLarge(title: "Kaydol", onTapFunction: signUpUser),
+                      ButtonLarge(
+                        title: "Kaydol",
+                        onTapFunction: signUpUser,
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -181,9 +199,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               style: TextStyle(
                                   color: Color.fromARGB(255, 16, 99, 166)),
                             ),
-                          )
+                          ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),

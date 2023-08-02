@@ -1,3 +1,5 @@
+// Author: Berke GÜREL
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_app/screens/profile_edit_screen.dart';
 import 'package:demo_app/screens/create_route.dart';
@@ -12,26 +14,29 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  var userData = {};
-  bool isLoading = true;
+  var userData = {}; // Map to store the user data retrieved from Firestore
+  bool isLoading =
+      true; // Variable to track the loading state while fetching user data
 
   void getData() async {
-    //get user data
+    // Get user data from Firestore using the current user's UID
     var userSnap = await FirebaseFirestore.instance
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get();
 
-    userData = userSnap.data()!;
+    userData = userSnap.data()!; // Store the user data in the userData map
+
     setState(() {
-      isLoading = false;
+      isLoading =
+          false; // Set isLoading to false to indicate that data fetching is complete
     });
   }
 
   @override
   void initState() {
     super.initState();
-    getData();
+    getData(); // Call getData() method when the widget is initialized to fetch user data
   }
 
   @override
@@ -42,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: CircularProgressIndicator(
                 color: Colors.green,
               ),
-            )
+            ) // Show a circular progress indicator while loading data
           : StreamBuilder(
               stream:
                   FirebaseFirestore.instance.collection("users").snapshots(),
@@ -74,9 +79,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Icons.person,
                                 size: 65,
                                 color: Colors.white70,
-                              ),
+                              ), // Display an icon representing the user's profile
                               Text(
-                                "${userData['position']} - ${userData['name']} ${userData['lastName']}",
+                                "${userData['position']} - ${userData['name']} ${userData['lastName']}", // Display the user's position, name, and last name
                                 style: const TextStyle(
                                     fontSize: 25,
                                     fontWeight: FontWeight.bold,
@@ -84,16 +89,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                userData["email"],
+                                userData["email"], // Display the user's email
                                 style: const TextStyle(color: Colors.white),
                               ),
                               const SizedBox(height: 10),
                               Text(
                                 userData["position"] != "Şöför"
                                     ? userData["address"] ??
-                                        "Adres Tanımlı Değil"
+                                        "Adres Tanımlı Değil" // Display the user's address if they are not a driver, otherwise display "Adres Tanımlı Değil"
                                     : userData["vehiclePlate"] ??
-                                        "Plaka Tanımlı Değil",
+                                        "Plaka Tanımlı Değil", // Display the user's vehicle plate if they are a driver, otherwise display "Plaka Tanımlı Değil"
                                 style: const TextStyle(
                                     fontSize: 25,
                                     fontWeight: FontWeight.bold,
@@ -104,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 5),
                         const Text(
-                          "Favori Rotalar",
+                          "Favori Rotalar", // Display a heading for the favorite routes section
                           style: TextStyle(
                               fontSize: 28, fontWeight: FontWeight.bold),
                         ),
@@ -113,7 +118,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 userData["likedDestinations"].length == 0
                             ? const Column(
                                 children: [
-                                  Text("Favori Rota Bulunamadı"),
+                                  Text(
+                                      "Favori Rota Bulunamadı"), // Display a message when no favorite routes are found
                                   Icon(
                                     Icons.not_listed_location_outlined,
                                     size: 86,
@@ -127,7 +133,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   itemCount: userData["likedDestinations"] ==
                                           null
                                       ? 0
-                                      : userData["likedDestinations"].length,
+                                      : userData["likedDestinations"]
+                                          .length, // Number of favorite routes
                                   itemBuilder: (context, index) {
                                     return userData["likedDestinations"]
                                                 .length ==
@@ -163,7 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 decoration: const BoxDecoration(
                                                     image: DecorationImage(
                                                       image: AssetImage(
-                                                          "assets/bus_logo.jpg"),
+                                                          "assets/bus_logo.jpg"), // Background image for the favorite route card
                                                       opacity: 0.2,
                                                     ),
                                                     color: Colors.white),
@@ -184,7 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                           Text(
                                                             userData["likedDestinations"]
                                                                     [index] ??
-                                                                "Favori Rotanız bulunmamaktaıdr",
+                                                                "Favori Rotanız bulunmamaktaıdr", // Display the name of the favorite route
                                                             style:
                                                                 const TextStyle(
                                                               color:
@@ -214,7 +221,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               MaterialPageRoute(
                                 builder: (context) => ProfileEditScreen(),
                               ),
-                            );
+                            ); // Navigate to the ProfileEditScreen when the "Profili Düzenle" tile is tapped
                           },
                           child: ListTile(
                             leading: Container(
@@ -240,7 +247,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     MaterialPageRoute(
                                       builder: (context) => CreateRoutePage(),
                                     ),
-                                  );
+                                  ); // Navigate to the CreateRoutePage when the "Rota Oluştur" tile is tapped
                                 },
                                 child: ListTile(
                                   leading: Container(
@@ -262,7 +269,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         //-----Çıkış Yap-----
                         InkWell(
                           onTap: () {
-                            FirebaseAuth.instance.signOut();
+                            FirebaseAuth.instance
+                                .signOut(); // Sign out the user when the "Çıkış Yap" tile is tapped
                           },
                           child: ListTile(
                             leading: Container(
