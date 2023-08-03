@@ -175,14 +175,7 @@ class _TrackPageState extends State<TrackPage> {
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData || !snapshot.data!.exists) {
-              return Center(
-                  child: Text(
-                'Yükleniyor...',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30,
-                ),
-              ));
+              return Center(child: CircularProgressIndicator.adaptive());
             } else {
               final data = snapshot.data!.data()!;
 

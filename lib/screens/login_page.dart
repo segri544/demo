@@ -63,9 +63,7 @@ class _LoginPageState extends State<LoginPage> {
       body: SafeArea(
         child: Center(
           child: _isLoading
-              ? const CircularProgressIndicator(
-                  color: Color.fromARGB(255, 16, 99,
-                      166)) // Show a circular progress indicator while loading
+              ? Image.asset("assets/bus_animation.gif", height: 350)
               : SingleChildScrollView(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

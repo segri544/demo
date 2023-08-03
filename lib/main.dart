@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       // Defining the app's theme
       theme: ThemeData(
+        backgroundColor: Colors.white,
         // primarySwatch: Colors.red, // You can set the primary color if needed
         appBarTheme: const AppBarTheme(
             color: Color.fromARGB(255, 16, 99,
