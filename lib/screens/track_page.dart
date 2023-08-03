@@ -33,7 +33,8 @@ class _TrackPageState extends State<TrackPage> {
   Marker? _myMarker;
   bool serviceEnabled = false;
   Timer? locationTimer;
-
+  final FirebaseAuth _auth =
+      FirebaseAuth.instance; // Firebase Authentication instance
   void startTimerForTrackLocation() {
     locationTimer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
       getLocation(); // Call your function here
@@ -271,7 +272,8 @@ class _TrackPageState extends State<TrackPage> {
             ),
           ],
         ),
-        bottomNavigationBar: (userData["position"] == "Şöför"
+        bottomNavigationBar: ((userData["position"] == "Şöför") &&
+                (_auth.currentUser!.uid == widget.documentId))
             ? BottomAppBar(
                 color: Color.fromARGB(255, 16, 99, 166),
                 child: ElevatedButton(
@@ -305,7 +307,7 @@ class _TrackPageState extends State<TrackPage> {
                   ),
                 ),
               )
-            : null));
+            : null);
   }
 
   Future<Set<Polyline>> _createPolylinesSet() async {

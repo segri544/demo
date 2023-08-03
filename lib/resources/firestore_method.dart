@@ -204,8 +204,7 @@ class FireStoreMethods {
       if (documentSnapshot.exists) {
         final data = documentSnapshot.data();
         final driverId = data!["destinationId"] as String;
-        print("aaaaaaaaaaaaaaaaaaaaa");
-        print(driverId);
+
         return driverId;
       } else {
         return "null";
