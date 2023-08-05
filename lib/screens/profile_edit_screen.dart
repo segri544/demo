@@ -103,7 +103,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         isObscure: false,
                       ),
                       const SizedBox(height: 10),
-                      userData["position"] != "Şöför"
+                      userData["position"] != "Şoför"
                           ? MyTextField(
                               controller: _adressController,
                               hintText:

@@ -94,7 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                userData["position"] != "Şöför"
+                                userData["position"] != "Şoför"
                                     ? userData["address"] ??
                                         "Adres Tanımlı Değil" // Display the user's address if they are not a driver, otherwise display "Adres Tanımlı Değil"
                                     : userData["vehiclePlate"] ??
@@ -240,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         //--Rota Oluştur--
-                        userData["position"] == "Şöför"
+                        userData["position"] == "Şoför"
                             ? InkWell(
                                 onTap: () {
                                   Navigator.of(context).push(

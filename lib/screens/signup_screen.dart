@@ -23,7 +23,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _vehiclePlateController = TextEditingController();
   final _addressController = TextEditingController();
 
-  final roles = ["Çalışan", "Şöför", "Stajyer"];
+  final roles = ["Çalışan", "Şoför", "Stajyer"];
   String _defaultValue = "Çalışan";
   bool _isLoading = false;
 
@@ -97,7 +97,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: SafeArea(
         child: Center(
           child: _isLoading
-              ? const CircularProgressIndicator()
+              ? Image.asset("assets/bus_animation.gif", height: 350)
               : SingleChildScrollView(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

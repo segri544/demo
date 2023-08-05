@@ -256,6 +256,7 @@ class _TrackPageState extends State<TrackPage> {
                       isMorning ? "Sabah Rotası" : "Akşam Rotası",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
+                    duration: Duration(seconds: 1),
                   ),
                 );
               },
@@ -265,7 +266,7 @@ class _TrackPageState extends State<TrackPage> {
             ),
           ],
         ),
-        bottomNavigationBar: ((userData["position"] == "Şöför") &&
+        bottomNavigationBar: ((userData["position"] == "Şoför") &&
                 (_auth.currentUser!.uid == widget.documentId))
             ? BottomAppBar(
                 color: Color.fromARGB(255, 16, 99, 166),

@@ -107,6 +107,7 @@ class _BusCardState extends State<BusCard> {
                     ),
                   ),
                 ),
+                Text((widget.snap["likes"].length).toString()),
               ],
             ),
           ),
